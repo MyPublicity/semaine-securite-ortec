@@ -1,132 +1,141 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="color-scheme" content="light dark" />
-    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>MCP-UI Proxy</title>
-    <style>
-      html,
-      body {
-        margin: 0;
-        height: 100vh;
-        width: 100vw;
-      }
-      body {
-        display: flex;
-        flex-direction: column;
-      }
-      * {
-        box-sizing: border-box;
-      }
-      iframe {
-        background-color: transparent;
-        border: 0px none transparent;
-        padding: 0px;
-        overflow: hidden;
-        flex-grow: 1;
-      }
-    </style>
-  </head>
-  <body>
-    <script>
-      // Double-iframe raw HTML mode (HTML sent via postMessage)
-      const inner = document.createElement('iframe');
-      inner.style = 'width:100%; height:100%; border:none;';
-      inner.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms');
-      document.body.appendChild(inner);
-
-      let parentOrigin = '*';
-
-      const ALLOWED_ORIGIN_PATTERNS = ["https://claude.ai","https://preview.claude.ai"];
-
-      const isAllowedOrigin = function(origin) {
-        try {
-          const url = new URL(origin);
-          const originHost = url.host;
-          const originScheme = url.protocol.replace(':', '');
-          return ALLOWED_ORIGIN_PATTERNS.some(pattern => {
-            const [patternScheme, patternHost] = pattern.split('://');
-            if (originScheme !== patternScheme) return false;
-            if (patternHost === 'localhost:*') {
-              return originHost.startsWith('localhost:') || originHost === 'localhost';
-            }
-            if (patternHost.startsWith('*.')) {
-              const baseDomain = patternHost.slice(2);
-              return originHost === baseDomain || originHost.endsWith('.' + baseDomain);
-            }
-            return originHost === patternHost;
-          });
-        } catch {
-          return false;
-        }
-      };
-
-      // Build Permission Policy allow attribute from permissions object.
-      // Maps McpUiResourcePermissions keys to Permission Policy feature names.
-      // Uses '*' suffix for cross-origin permission delegation.
-      //
-      // NOTE: This is duplicated from packages/mcp-ext-apps-host/app-host-utils.ts
-      // because this runs as inline JS in the browser. Keep both in sync!
-      const buildAllowAttribute = function(permissions) {
-        if (!permissions || typeof permissions !== 'object') return '';
-        const mapping = {
-          camera: 'camera',
-          microphone: 'microphone',
-          geolocation: 'geolocation',
-          clipboardWrite: 'clipboard-write',
-        };
-        const features = Object.keys(permissions)
-          .filter(key => mapping[key] && permissions[key] != null)
-          .map(key => mapping[key] + ' *');
-        return features.join('; ');
-      };
-
-      // Handle messages from the parent (web: claude.ai via postMessage, mobile: native app via mcpAppBridgeReceive).
-      // onHandshake is called once during sandbox-resource-ready to lock in the parent origin (web only).
-      const handleParentMessage = function(data, onHandshake) {
-        if (data && data.method === 'ui/notifications/sandbox-resource-ready') {
-          const {html, permissions} = data.params;
-          if (typeof html === 'string') {
-            if (onHandshake) onHandshake();
-            // Set allow attribute for Permission Policy features
-            const allowValue = buildAllowAttribute(permissions);
-            if (allowValue) {
-              inner.setAttribute('allow', allowValue);
-            }
-
-            // Use document.write() instead of srcdoc to preserve origin.
-            // srcdoc creates an opaque origin that breaks WebGL canvas operations
-            // like toDataURL() and cross-origin resource access.
-            const doc = inner.contentDocument;
-            doc.open();
-            doc.write(html);
-            doc.close();
-          }
-        } else {
-          if (inner && inner.contentWindow) {
-            inner.contentWindow.postMessage(data, location.origin);
-          }
-        }
-      };
-
-      // Wait for HTML content from parent
-      window.addEventListener('message', async (event) => {
-        if (event.source === window.parent && isAllowedOrigin(event.origin)) {
-          handleParentMessage(event.data, function() { parentOrigin = event.origin; });
-        } else if (event.source === inner.contentWindow && event.origin === location.origin) {
-          // Relay messages from inner to parent (srcdoc + allow-same-origin = same origin as parent)
-          window.parent.postMessage(event.data, parentOrigin);
-        }
-      });
-
-      // Notify parent that proxy is ready to receive HTML (distinct event)
-      window.parent.postMessage({
-        jsonrpc: "2.0",
-        method: 'ui/notifications/sandbox-proxy-ready',
-        params: {}
-      }, '*');
-
-    </script>
-  </body>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jeu Semaine Securite 2026 - Ortec</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f0f4fb;min-height:100vh;padding:20px}
+.app{max-width:800px;margin:0 auto}
+header{background:#0d1b3e;border-radius:14px;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.h-title{color:#fff;font-size:20px;font-weight:700}
+.h-sub{color:rgba(255,255,255,.55);font-size:12px;margin-top:3px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.stat{background:#fff;border-radius:10px;padding:12px 16px;text-align:center}
+.sl{font-size:11px;color:#888;margin-bottom:4px}
+.sv{font-size:22px;font-weight:700;color:#0d1b3e}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;align-items:center}
+button,label.btn{border:1.5px solid #d0d5e0;border-radius:8px;background:#fff;color:#1a1a2e;padding:10px 18px;font-size:13px;cursor:pointer;font-weight:500;display:inline-flex;align-items:center;gap:6px}
+button:hover,label.btn:hover{background:#f0f4ff}
+button.pri{background:#0d1b3e;color:#fff;border-color:#0d1b3e}
+button.pri:hover{background:#162d66}
+.imp{position:relative;overflow:hidden}
+.imp input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.ok-msg{font-size:12px;color:#2e7d32;background:#e8f5e9;border-radius:6px;padding:7px 12px}
+.area{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;justify-content:center;margin-bottom:20px}
+.slot{display:flex;flex-direction:column;align-items:center;gap:8px}
+.slabel{font-size:12px;color:#888}
+.card{width:220px;height:340px;border-radius:14px;cursor:pointer;perspective:900px}
+.ci{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1)}
+.card.flipped .ci{transform:rotateY(180deg)}
+.face{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:14px;overflow:hidden;border:2px solid rgba(255,255,255,.12)}
+.back{background:#0d1b3e;display:flex;align-items:center;justify-content:center}
+.front{background:#fff;transform:rotateY(180deg);display:flex;flex-direction:column}
+.fh{background:#0d1b3e;padding:11px 14px;display:flex;align-items:center;gap:8px}
+.fnum{background:#E8640A;color:#fff;font-size:12px;font-weight:700;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.fsuit{color:rgba(255,255,255,.6);font-size:12px}
+.fbody{flex:1;padding:14px;display:flex;flex-direction:column;justify-content:space-between}
+.fq{font-size:13px;color:#1a1a2e;line-height:1.55;font-weight:600;margin-bottom:12px}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{border:1.5px solid #e0e0e0;border-radius:7px;padding:7px 10px;font-size:12px;color:#222;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:7px}
+.opt:hover{border-color:#E8640A;background:#fff7f2}
+.opt.ok2{background:#e8f5e9;border-color:#4caf50;color:#1b5e20}
+.opt.bad{background:#ffebee;border-color:#f44336;color:#b71c1c}
+.ol{width:18px;height:18px;border-radius:50%;background:#0d1b3e;color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.opt.ok2 .ol{background:#4caf50}
+.opt.bad .ol{background:#f44336}
+.ff{padding:8px 14px;border-top:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center}
+.dif{font-size:10px;padding:2px 8px;border-radius:3px;font-weight:600}
+.df{background:#e8f5e9;color:#1b5e20}
+.dm{background:#fff3e0;color:#e65100}
+.dd{background:#ffebee;color:#b71c1c}
+.stk{width:220px;height:340px;position:relative;cursor:pointer}
+.sc{position:absolute;width:220px;height:340px;border-radius:14px;background:#0d1b3e;border:2px solid rgba(255,255,255,.1)}
+.sc:nth-child(1){top:8px;left:8px;opacity:.3}
+.sc:nth-child(2){top:4px;left:4px;opacity:.55}
+.sc:nth-child(3){top:0;left:0;display:flex;align-items:center;justify-content:center}
+.msg{text-align:center;padding:12px;font-size:13px;color:#888;background:#fff;border-radius:10px;margin-top:8px;display:none}
+.hint{font-size:11px;color:#aaa;text-align:center;margin-top:6px}
+@media(max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.area{flex-direction:column;align-items:center}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div><div class="h-title">Semaine Securite 2026</div><div class="h-sub">Ortec Group - Jeu de cartes securite</div></div>
+  <svg width="48" height="64" viewBox="0 0 130 180">
+    <ellipse cx="65" cy="60" rx="42" ry="42" fill="#3a7fd5" opacity=".9"/>
+    <polygon points="65,22 98,72 32,72" fill="#E8640A"/>
+    <ellipse cx="65" cy="54" rx="18" ry="13" fill="white" opacity=".9"/>
+    <rect x="47" y="62" width="36" height="5" rx="2" fill="white" opacity=".7"/>
+    <text x="39" y="48" fill="white" font-size="10" font-weight="bold" font-family="sans-serif">1</text>
+    <text x="88" y="65" fill="white" font-size="10" font-weight="bold" font-family="sans-serif">2</text>
+    <text x="62" y="80" fill="white" font-size="10" font-weight="bold" font-family="sans-serif">3</text>
+    <text x="65" y="110" text-anchor="middle" fill="#3a7fd5" font-size="13" font-weight="bold" font-family="sans-serif" letter-spacing="3">ORTEC</text>
+    <rect x="20" y="118" width="90" height="1" fill="rgba(255,255,255,.25)"/>
+    <text x="65" y="136" text-anchor="middle" fill="white" font-size="9" font-family="sans-serif" letter-spacing="1">SEMAINE</text>
+    <text x="65" y="152" text-anchor="middle" fill="#E8640A" font-size="15" font-weight="bold" font-family="sans-serif">SECURITE</text>
+    <text x="65" y="168" text-anchor="middle" fill="white" font-size="11" font-family="sans-serif" font-weight="bold">2026</text>
+  </svg>
+</header>
+<div class="stats">
+  <div class="stat"><div class="sl">Cartes restantes</div><div class="sv" id="rem">52</div></div>
+  <div class="stat"><div class="sl">Bonnes reponses</div><div class="sv" id="cor" style="color:#2e7d32">0</div></div>
+  <div class="stat"><div class="sl">Mauvaises</div><div class="sv" id="wrg" style="color:#c62828">0</div></div>
+  <div class="stat"><div class="sl">Score</div><div class="sv" id="sco">-</div></div>
+</div>
+<div class="toolbar">
+  <button class="pri" onclick="draw()">Tirer une carte</button>
+  <button onclick="reset()">Reinitialiser la pile</button>
+  <label class="btn imp">Importer questions (.xlsx/.csv)<input type="file" accept=".xlsx,.xls,.csv" onchange="importFile(this)"></label>
+  <span class="ok-msg" id="ok-msg" style="display:none"></span>
+</div>
+<div class="area">
+  <div class="slot">
+    <div class="slabel">Pile</div>
+    <div class="stk" id="stk" onclick="draw()">
+      <div class="sc"></div><div class="sc"></div>
+      <div class="sc"><svg width="120" height="160" viewBox="0 0 130 180"><ellipse cx="65" cy="60" rx="42" ry="42" fill="#3a7fd5" opacity=".9"/><polygon points="65,22 98,72 32,72" fill="#E8640A"/><ellipse cx="65" cy="54" rx="18" ry="13" fill="white" opacity=".9"/><rect x="47" y="62" width="36" height="5" rx="2" fill="white" opacity=".7"/><text x="39" y="48" fill="white" font-size="10" font-weight="bold" font-family="sans-serif">1</text><text x="88" y="65" fill="white" font-size="10" font-weight="bold" font-family="sans-serif">2</text><text x="62" y="80" fill="white" font-size="10" font-weight="bold" font-family="sans-serif">3</text><text x="65" y="110" text-anchor="middle" fill="#3a7fd5" font-size="13" font-weight="bold" font-family="sans-serif" letter-spacing="3">ORTEC</text><rect x="20" y="118" width="90" height="1" fill="rgba(255,255,255,.25)"/><text x="65" y="136" text-anchor="middle" fill="white" font-size="9" font-family="sans-serif" letter-spacing="1">SEMAINE</text><text x="65" y="152" text-anchor="middle" fill="#E8640A" font-size="15" font-weight="bold" font-family="sans-serif">SECURITE</text><text x="65" y="168" text-anchor="middle" fill="white" font-size="11" font-family="sans-serif" font-weight="bold">2026</text></svg></div>
+    </div>
+  </div>
+  <div class="slot">
+    <div class="slabel">Carte active</div>
+    <div class="card" id="card" onclick="flip()">
+      <div class="ci">
+        <div class="face back"><svg width="120" height="160" viewBox="0 0 130 180"><ellipse cx="65" cy="60" rx="42" ry="42" fill="#3a7fd5" opacity=".9"/><polygon points="65,22 98,72 32,72" fill="#E8640A"/><ellipse cx="65" cy="54" rx="18" ry="13" fill="white" opacity=".9"/><rect x="47" y="62" width="36" height="5" rx="2" fill="white" opacity=".7"/><text x="39" y="48" fill="white" font-size="10" font-weight="bold" font-family="sans-serif">1</text><text x="88" y="65" fill="white" font-size="10" font-weight="bold" font-family="sans-serif">2</text><text x="62" y="80" fill="white" font-size="10" font-weight="bold" font-family="sans-serif">3</text><text x="65" y="110" text-anchor="middle" fill="#3a7fd5" font-size="13" font-weight="bold" font-family="sans-serif" letter-spacing="3">ORTEC</text><rect x="20" y="118" width="90" height="1" fill="rgba(255,255,255,.25)"/><text x="65" y="136" text-anchor="middle" fill="white" font-size="9" font-family="sans-serif" letter-spacing="1">SEMAINE</text><text x="65" y="152" text-anchor="middle" fill="#E8640A" font-size="15" font-weight="bold" font-family="sans-serif">SECURITE</text><text x="65" y="168" text-anchor="middle" fill="white" font-size="11" font-family="sans-serif" font-weight="bold">2026</text></svg></div>
+        <div class="face front">
+          <div class="fh"><div class="fnum" id="fnum">?</div><div class="fsuit" id="fsuit">Tirez une carte</div></div>
+          <div class="fbody"><div class="fq" id="fq">Cliquez Tirer une carte pour commencer...</div><div class="opts" id="fopts"></div></div>
+          <div class="ff"><div class="dif" id="fdif"></div><div style="font-size:11px;color:#ccc" id="fcn"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="hint" id="hint">cliquer pour retourner</div>
+  </div>
+</div>
+<div class="msg" id="msg"></div>
+</div>
+<script>
+const QQ=[{q:"Que signifie EPI ?",opts:["Equipe de protection industrielle","Equipement de protection individuelle","Ensemble de prevention interne","Entretien periodique industriel"],ans:1,diff:"facile"},{q:"Priorite en cas d'incendie ?",opts:["Eteindre soi-meme","Alerter et evacuer","Sauver le materiel","Attendre les ordres"],ans:1,diff:"facile"},{q:"Couleur issue de secours ?",opts:["Rouge","Jaune","Vert","Bleu"],ans:2,diff:"facile"},{q:"Avant d'intervenir sur une machine ?",opts:["Verifier son telephone","Consigner/verrouiller energie (LOTO)","Prevenir un collegue","Mettre des gants"],ans:1,diff:"moyen"},{q:"Qu'est-ce qu'un presqu'accident ?",opts:["Un accident mineur","Incident sans blessure qui aurait pu etre grave","Une fausse alerte","Un accident declare"],ans:1,diff:"moyen"},{q:"EPI pour les yeux ?",opts:["Casque integral","Lunettes de protection","Masque FFP2","Protege-oreilles"],ans:1,diff:"facile"},{q:"Droit de refuser un travail dangereux ?",opts:["Non jamais","Oui c'est le droit de retrait","Oui avec accord chef","Seulement cadres"],ans:1,diff:"moyen"},{q:"Que signifie DUER ?",opts:["Document Unique Evaluation Risques","Dossier Urgence Exploitation","Declaration Emploi Risque","Document Environnement"],ans:0,diff:"difficile"},{q:"Numero urgence europeen ?",opts:["18","15","17","112"],ans:3,diff:"facile"},{q:"Hauteur protection anti-chute obligatoire ?",opts:["1 m","1,5 m","2 m","3 m"],ans:2,diff:"difficile"},{q:"Face a un feu naissant ?",opts:["N'importe quel extincteur","Verifier extincteur adapte puis attaquer","Souffler dessus","Arroser d'eau"],ans:1,diff:"moyen"},{q:"EHS signifie ?",opts:["Environnement Hygiene Securite","Equipe Hygiene Site","Excellence Humain Service","Evaluation Humaine Sociale"],ans:0,diff:"moyen"},{q:"Pictogramme risque chimique ?",opts:["Flamme orange","Crane et tibias","Point exclamation","Cercle rouge"],ans:1,diff:"moyen"},{q:"Choc electrique sur collegue : 1ere action ?",opts:["Toucher la victime","Couper alimentation avant contact","Appeler SAMU d'abord","Arroser d'eau"],ans:1,diff:"difficile"},{q:"Signaler un danger immediat ?",opts:["Envoyer email","Alerter verbalement + alarmes internes","Poster intranet","Attendre reunion"],ans:1,diff:"facile"},{q:"Prevention des TMS ?",opts:["Ceinture lombaire permanente","Alterner postures aides mecaniques formation","Travailler plus vite","Ignorer douleur"],ans:1,diff:"moyen"},{q:"Permis travail a chaud ?",opts:["Travailler en ete","Autorisation travaux flammes zone a risque","Contrat heures supp","Permission fumer"],ans:1,diff:"difficile"},{q:"Couleur consigne obligatoire ?",opts:["Rouge","Jaune","Bleu","Vert"],ans:2,diff:"facile"},{q:"Alarme incendie sans feu visible ?",opts:["Ignorer","Evacuer sans ascenseur","Chercher source d'abord","Couper alarme"],ans:1,diff:"facile"},{q:"Consignation machine ?",opts:["Mettre en veille","Isoler et verrouiller toutes energies","Eteindre temporairement","Signaler defaut"],ans:1,diff:"difficile"},{q:"Produit chimique sur peau ?",opts:["Appliquer antidote","Rincer eau 15 min minimum","Neutraliser vinaigre","Secher chiffon"],ans:1,diff:"moyen"},{q:"Risque bruit a partir de ?",opts:["60 dB(A)","80 dB(A)","100 dB(A)","120 dB(A)"],ans:1,diff:"difficile"},{q:"Interimaire : meme formation securite ?",opts:["Non temporaire","Oui memes droits obligations","Postes dangereux seulement","Apres 3 mois"],ans:1,diff:"moyen"},{q:"Eviter chute de plain-pied ?",opts:["Chaussures montantes","Sols entretenus zones balisees eclairage","Marcher lentement","Tapis partout"],ans:1,diff:"facile"},{q:"Avant 1er utilisation equipement ?",opts:["Essayer sans formation","Lire notice se former verifier etat","Demander collegue","Rien si simple"],ans:1,diff:"facile"},{q:"Verification harnais anti-chute ?",opts:["A l'achat","Avant chaque utilisation + annuellement","Tous 5 ans","Apres chute seulement"],ans:1,diff:"difficile"},{q:"Pictogramme degrade : que faire ?",opts:["Ignorer","Signaler et remplacer","Le couvrir","Mettre note"],ans:1,diff:"facile"},{q:"Exercices evacuation ERP : frequence ?",opts:["1 fois par an","Tous les 6 mois","Tous les 3 ans","Aucune obligation"],ans:1,diff:"difficile"},{q:"Responsable securite au travail ?",opts:["Responsable HSE","Employeur avec delegation encadrants","Inspection travail","Salaries collectivement"],ans:1,diff:"difficile"},{q:"EPC signifie ?",opts:["Equipement Protection Collective","Equipe Prevention Centrale","Entretien Preventif Continu","Evaluation Pratiques"],ans:0,diff:"difficile"},{q:"Chaussures S3 protegent contre ?",opts:["Chutes uniquement","Perforation semelle ecrasement eau","Ecrasement uniquement","Rien"],ans:1,diff:"moyen"},{q:"Triangle de feu : 3 elements ?",opts:["Combustible comburant energie activation","Carburant oxygene flamme","Chaleur fumee flamme","Bois plastique metal"],ans:0,diff:"difficile"},{q:"Verification extincteurs France ?",opts:["Tous 6 mois","Tous les ans","Tous 2 ans","Tous 5 ans"],ans:1,diff:"difficile"},{q:"Espace confine : avant d'entrer ?",opts:["Verifier heure","Permis acces tester atmosphere surveillance","Juste masque","Aerer 5 min"],ans:1,diff:"difficile"},{q:"Masque soudure auto-obscurcissant ?",opts:["Mains","Yeux visage UV IR projections","Poumons","Oreilles"],ans:1,diff:"moyen"},{q:"Plan de prevention : seuil ?",opts:["1 jour","400h annuelles ou travaux dangereux","10 personnes","Toujours"],ans:1,diff:"difficile"},{q:"Zone ATEX ?",opts:["Zone rouge DANGER","Zone classifiee EX signalisation","Balisage jaune","Panneau vert"],ans:1,diff:"difficile"},{q:"Avant monter sur un toit ?",opts:["Accord verbal chef","Permis hauteur EPI adaptes","Juste echelle","Rien si rapide"],ans:1,diff:"moyen"},{q:"Expo max 85 dB(A) sans protection ?",opts:["8 heures","4 heures","2 heures","1 heure"],ans:0,diff:"difficile"},{q:"Controle conditions travail France ?",opts:["ANSES","Inspection travail DREETS","Securite sociale","CHSCT"],ans:1,diff:"difficile"},{q:"Casque chantier : remplacement ?",opts:["Jamais si pas abime","Apres choc ou duree vie","Tous 10 ans","Si fissure seulement"],ans:1,diff:"moyen"},{q:"Quart d'heure securite ?",opts:["Pause obligatoire","Briefing risques avant commencer","Exercice sportif","Nettoyage"],ans:1,diff:"facile"},{q:"Accident de trajet ?",opts:["Trajet domicile-travail","Chute dans locaux","Voiture pro","Incident formation"],ans:0,diff:"moyen"},{q:"Rangement produits chimiques ?",opts:["Ordre alphabetique","Compatibilite loin ignition etiquetage","Armoire fermee","N'importe ou si temporaire"],ans:1,diff:"moyen"},{q:"Pictogramme crane tibias = ?",opts:["Haute tension","Produit toxique ou mortel","Inflammable","Corrosif"],ans:1,diff:"facile"},{q:"Travail en hauteur : verifications ?",opts:["Meteo","EPI ancrage zone securisee permis","Juste echelle","Rien si experimente"],ans:1,diff:"moyen"},{q:"Produit chimique non etiquete ?",opts:["Utiliser precaution","Ne pas utiliser signaler identifier","Jeter immediatement","Etiqueter soi-meme"],ans:1,diff:"moyen"},{q:"PSC1 signifie ?",opts:["Premier Secours Collectivite","Prevention Secours Civiques niveau 1","Protection Securite Civile","Plan Securite Commun"],ans:1,diff:"moyen"},{q:"Signaletique rouge/blanc = ?",opts:["Interdit","Obligatoire","Danger","Information"],ans:0,diff:"facile"},{q:"Ecran facial soudure protege contre ?",opts:["Bruit","Projections arc UV","Gaz","Chaleur uniquement"],ans:1,diff:"moyen"},{q:"Port gants obligatoire ?",opts:["Tout travail","Travaux exposant mains risques identifies","Chimie uniquement","Si demande collegue"],ans:1,diff:"moyen"},{q:"Espace confine : mesures avant entree ?",opts:["Verifier materiel","Permis tester atm prevoir surveillance","Aerer et entrer","Equipe 2 minimum"],ans:1,diff:"difficile"}];
+const S=[{n:"Pique",s:"\u2660"},{n:"Coeur",s:"\u2665"},{n:"Carreau",s:"\u2666"},{n:"Trefle",s:"\u2663"}];
+const R=["As","2","3","4","5","6","7","8","9","10","V","D","R"];
+let deck=[],cur=null,cor=0,wrg=0,done=false,qs=[...QQ];
+function bld(){deck=[];let qi=0;for(let s=0;s<4;s++)for(let r=0;r<13;r++){deck.push({suit:S[s],rank:R[r],cn:s*13+r+1,q:qs[qi%qs.length]});qi++;}shuf(deck);}
+function shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
+function upd(){document.getElementById('rem').textContent=deck.length;document.getElementById('cor').textContent=cor;document.getElementById('wrg').textContent=wrg;const t=cor+wrg;document.getElementById('sco').textContent=t>0?Math.round(cor/t*100)+'%':'-';}
+function draw(){if(!deck.length){sm('Toutes les cartes sont jouees ! Reinitialisez.');return;}hm();const c=document.getElementById('card');if(c.classList.contains('flipped')){c.classList.remove('flipped');setTimeout(lc,300);}else lc();}
+function lc(){if(!deck.length)return;cur=deck.pop();done=false;upd();document.getElementById('fnum').textContent=cur.rank;document.getElementById('fsuit').textContent=cur.suit.s+' '+cur.suit.n;document.getElementById('fq').textContent=cur.q.q;document.getElementById('fcn').textContent='Carte #'+cur.cn;const de=document.getElementById('fdif');const dm={facile:['Facile','df'],moyen:['Moyen','dm'],difficile:['Difficile','dd']};const[lb,cl]=dm[cur.q.diff]||['',''];de.textContent=lb;de.className='dif '+cl;const oc=document.getElementById('fopts');oc.innerHTML='';const lt=['A','B','C','D'];cur.q.opts.forEach((o,i)=>{const el=document.createElement('div');el.className='opt';el.innerHTML='<div class="ol">'+lt[i]+'</div><span>'+o+'</span>';el.onclick=()=>ans(i,el);oc.appendChild(el);});document.getElementById('hint').textContent='cliquer pour retourner';document.getElementById('stk').style.opacity=deck.length?'1':'0.3';}
+function ans(i,el){if(done)return;done=true;const ci=cur.q.ans;document.querySelectorAll('#fopts .opt')[ci].classList.add('ok2');if(i!==ci){el.classList.add('bad');wrg++;}else cor++;upd();}
+function flip(){if(!cur)return;const c=document.getElementById('card');c.classList.toggle('flipped');document.getElementById('hint').textContent=c.classList.contains('flipped')?'cliquer pour le dos':'cliquer pour retourner';}
+function reset(){bld();cor=0;wrg=0;cur=null;done=false;document.getElementById('card').classList.remove('flipped');document.getElementById('fq').textContent='Cliquez Tirer une carte pour commencer...';document.getElementById('fopts').innerHTML='';document.getElementById('fnum').textContent='?';document.getElementById('fsuit').textContent='';document.getElementById('fdif').textContent='';document.getElementById('fcn').textContent='';document.getElementById('hint').textContent='cliquer pour retourner';document.getElementById('stk').style.opacity='1';hm();upd();}
+function sm(t){const m=document.getElementById('msg');m.textContent=t;m.style.display='block';}
+function hm(){document.getElementById('msg').style.display='none';}
+function importFile(inp){const f=inp.files[0];if(!f)return;const ext=f.name.split('.').pop().toLowerCase();if(ext==='csv'){const r=new FileReader();r.onload=e=>pcsv(e.target.result);r.readAsText(f,'UTF-8');}else{const r=new FileReader();r.onload=e=>{const wb=XLSX.read(e.target.result,{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];pcsv(XLSX.utils.sheet_to_csv(ws));};r.readAsArrayBuffer(f);}inp.value='';}
+function pcsv(txt){const res=Papa.parse(txt,{header:true,skipEmptyLines:true});const rows=res.data;if(!rows.length){alert('Fichier vide.');return;}const p=[];rows.forEach(r=>{const q=r['Question']||r['question']||Object.values(r)[0];const a=r['OptionA']||r['A']||Object.values(r)[1];const b=r['OptionB']||r['B']||Object.values(r)[2];const c=r['OptionC']||r['C']||Object.values(r)[3]||'';const d=r['OptionD']||r['D']||Object.values(r)[4]||'';const an=parseInt(r['BonneReponse']||r['Reponse']||Object.values(r)[5])||0;const df=(r['Difficulte']||r['diff']||'moyen').toLowerCase().trim();if(q&&a&&b)p.push({q:q.trim(),opts:[a,b,c,d].filter(x=>x),ans:an,diff:df});});if(!p.length){alert('Aucune question valide.');return;}qs=[...p];reset();const ok=document.getElementById('ok-msg');ok.textContent=p.length+' questions importees !';ok.style.display='inline-block';setTimeout(()=>ok.style.display='none',4000);}
+bld();upd();
+</script>
+</body>
 </html>
