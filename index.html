@@ -606,8 +606,9 @@ function importFile(inp) {
         // Format complet 2 onglets
         const cfgSheet = wb.Sheets[wb.SheetNames[sheetNames.indexOf('config')]];
         const qSheet   = wb.Sheets[wb.SheetNames[sheetNames.indexOf('questions')]];
-        parseConfig(XLSX.utils.sheet_to_json(cfgSheet, {defval:''}));
-        parseQuestions(XLSX.utils.sheet_to_csv(qSheet));
+        // range:2 = skip rows 1-2 (titre + sous-titre), utiliser ligne 3 comme en-tête
+        parseConfig(XLSX.utils.sheet_to_json(cfgSheet, {defval:'', range:2}));
+        parseQuestions(XLSX.utils.sheet_to_csv(qSheet, {range:2}));
       } else {
         // Format simple 1 onglet (rétrocompat)
         const ws = wb.Sheets[wb.SheetNames[0]];
