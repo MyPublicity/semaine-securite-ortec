@@ -608,7 +608,8 @@ function importFile(inp) {
         const qSheet   = wb.Sheets[wb.SheetNames[sheetNames.indexOf('questions')]];
         // range:2 = skip rows 1-2 (titre + sous-titre), utiliser ligne 3 comme en-tête
         parseConfig(XLSX.utils.sheet_to_json(cfgSheet, {defval:'', range:2}));
-        parseQuestions(XLSX.utils.sheet_to_csv(qSheet, {range:2}));
+        // FIX: sheet_to_csv ignore silencieusement range:2 → on utilise sheet_to_json comme pour Config
+        parseQuestionsFromJson(XLSX.utils.sheet_to_json(qSheet, {defval:'', range:2}));
       } else {
         // Format simple 1 onglet (rétrocompat)
         const ws = wb.Sheets[wb.SheetNames[0]];
@@ -637,6 +638,31 @@ function parseConfig(rows) {
   }
 }
 
+// Traitement direct depuis sheet_to_json (fiable, supporte range:2)
+function parseQuestionsFromJson(rows) {
+  const qs = {};
+  let total = 0;
+  rows.forEach(r => {
+    // Normaliser les clés (supprimer espaces/BOM éventuels)
+    const nr = {};
+    Object.keys(r).forEach(k => { nr[k.toString().trim()] = r[k]; });
+    const theme = (nr['Theme'] || nr['theme'] || '').toString().toLowerCase().trim();
+    const q  = (nr['Question']  || nr['question']  || '').toString().trim();
+    const a  = (nr['OptionA']   || nr['A']          || '').toString().trim();
+    const b  = (nr['OptionB']   || nr['B']          || '').toString().trim();
+    const c  = (nr['OptionC']   || nr['C']          || '').toString().trim();
+    const d  = (nr['OptionD']   || nr['D']          || '').toString().trim();
+    const an = parseInt(nr['BonneReponse'] || nr['Reponse'] || 0) || 0;
+    const df = (nr['Difficulte'] || nr['diff'] || 'moyen').toString().toLowerCase().trim();
+    if (theme && q && a && b) {
+      if (!qs[theme]) qs[theme] = [];
+      qs[theme].push({q, opts:[a,b,c,d].filter(x=>x), ans:an, diff:df});
+      total++;
+    }
+  });
+  finalizeQuestions(qs, total);
+}
+
 function parseQuestions(csv) {
   const res = Papa.parse(csv, {header:true, skipEmptyLines:true});
   const qs = {};
@@ -656,9 +682,12 @@ function parseQuestions(csv) {
       total++;
     }
   });
-  if (!total) { alert('Aucune question valide trouvée.'); return; }
-  QUESTIONS = qs;
+  finalizeQuestions(qs, total);
+}
 
+function finalizeQuestions(qs, total) {
+  if (!total) { alert('Aucune question valide trouvée.\n\nVérifiez que l\'onglet Questions contient les colonnes :\nTheme · Question · OptionA · OptionB · BonneReponse · Difficulte'); return; }
+  QUESTIONS = qs;
   const counts = Object.entries(qs).map(([k,v]) => k + ': ' + v.length + 'q').join(' | ');
   const status = document.getElementById('imp-status');
   status.textContent = '✓ ' + total + ' questions chargées — ' + THEMES.length + ' thèmes (' + counts + ')';
@@ -666,7 +695,6 @@ function parseQuestions(csv) {
   document.getElementById('import-zone').classList.add('loaded');
   document.getElementById('btn-reset-import').style.display = 'inline-flex';
   document.getElementById('format-info').style.display = 'block';
-
   initGame();
 }
 
