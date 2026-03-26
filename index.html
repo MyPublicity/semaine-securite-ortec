@@ -228,25 +228,68 @@ input[type=text].login-in::placeholder{color:#bbb}
 .track-stat .ts-v{font-size:1.3rem;font-weight:800;color:#0d1b3e}
 .track-stat .ts-l{font-size:.71rem;color:#888;margin-top:1px}
 
-/* ── DOS CARTE AMÉLIORÉ ───────────────────────────────── */
-.back{background:#0d1b3e !important;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:0;border:2px solid rgba(255,255,255,.08) !important}
-.back-top{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:14px 12px 6px;width:100%}
-.back-img-wrap{width:90px;height:90px;display:flex;align-items:center;justify-content:center;border-radius:10px;overflow:hidden;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)}
-.back-img-wrap img{width:100%;height:100%;object-fit:contain}
-.back-img-placeholder{font-size:32px;color:rgba(255,255,255,.25)}
-.back-title{font-size:10px;font-weight:800;color:rgba(255,255,255,.55);letter-spacing:2.5px;text-transform:uppercase;text-align:center;line-height:1.4}
-.back-banner{width:100%;padding:10px 12px;display:flex;flex-direction:column;align-items:center;gap:3px;transition:background .3s;border-radius:0 0 12px 12px}
-.back-icon{font-size:18px;line-height:1}
-.back-text{font-size:10px;font-weight:800;color:#fff;text-align:center;letter-spacing:.5px;text-transform:uppercase;text-shadow:0 1px 4px rgba(0,0,0,.5);line-height:1.3}
-.back-year{font-size:8px;color:rgba(255,255,255,.4);letter-spacing:2px;text-transform:uppercase}
+/* ── DOS CARTE AMÉLIORÉ (pile + face dos quand non-retournée) ── */
 
-/* Même style pour les cartes de la PILE */
-.pc:nth-child(3){top:0;left:0;background:#0d1b3e;border:3px solid rgba(255,255,255,.13);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:0;transition:transform .18s,box-shadow .18s;box-shadow:0 6px 24px rgba(13,27,62,.3)}
-.pc-top{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:14px 12px 6px;width:100%}
-.pc-img-wrap{width:80px;height:80px;display:flex;align-items:center;justify-content:center;border-radius:9px;overflow:hidden;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)}
-.pc-img-wrap img{width:100%;height:100%;object-fit:contain}
-.pc-img-ph{font-size:28px;color:rgba(255,255,255,.2)}
-.pc-title{font-size:9px;font-weight:800;color:rgba(255,255,255,.5);letter-spacing:2px;text-transform:uppercase;text-align:center;line-height:1.4}
+/* La face QUESTION (.face.back) reste blanche - ne pas toucher */
+/* Le DOS VISUEL = la pile (.pc) et une face dos optionnelle (.card-back-face) */
+
+/* Pile : carte du dessus */
+.pc:nth-child(3){
+  top:0;left:0;background:#0d1b3e;
+  border:3px solid rgba(255,255,255,.18);
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  padding:0;transition:transform .18s,box-shadow .18s;
+  box-shadow:0 6px 24px rgba(13,27,62,.3)
+}
+.pc-top{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:10px;padding:16px 12px 8px;width:100%
+}
+.pc-img-wrap{
+  width:130px;height:130px;display:flex;align-items:center;justify-content:center;
+  border-radius:12px;overflow:hidden;background:transparent
+}
+.pc-img-wrap img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(0,0,0,.4))}
+.pc-img-ph{font-size:42px;color:rgba(255,255,255,.3)}
+.pc-title{
+  font-size:12px;font-weight:900;color:#ffffff;
+  letter-spacing:1.5px;text-transform:uppercase;text-align:center;
+  line-height:1.4;text-shadow:0 1px 6px rgba(0,0,0,.6)
+}
+.pc-banner{
+  width:100%;padding:11px 12px;display:flex;flex-direction:column;
+  align-items:center;gap:4px;border-radius:0 0 11px 11px
+}
+.pc-icon{font-size:20px;line-height:1}
+.pc-text{
+  font-size:12px;font-weight:900;color:#fff;text-align:center;
+  letter-spacing:.5px;text-transform:uppercase;
+  text-shadow:0 1px 4px rgba(0,0,0,.6);line-height:1.3
+}
+
+/* ── TEXTE SUR CARTES (face question + réponse) ────────── */
+.fq{font-size:13px;color:#0d1b3e;line-height:1.55;font-weight:700;margin-bottom:9px;flex-shrink:0}
+.opt{
+  border:1.5px solid #dde2ee;border-radius:8px;padding:6px 10px;
+  font-size:11.5px;color:#1a1a2e;display:flex;align-items:flex-start;
+  gap:6px;line-height:1.45;transition:all .13s;background:#fafbfd
+}
+.opt.corr{background:#e8f5e9;border-color:#43a047;color:#1b5e20;font-weight:700}
+.opt.bad{opacity:.25}
+.ol{
+  width:17px;height:17px;min-width:17px;border-radius:50%;
+  font-size:9.5px;font-weight:800;display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;margin-top:1px;
+  background:#e0e4ee;color:#444
+}
+.opt.corr .ol{background:#43a047;color:#fff}
+.fh{padding:10px 13px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.fnum{color:#fff;font-size:11px;font-weight:800;border-radius:50%;width:24px;height:24px;min-width:24px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.28)}
+.fsuit{color:rgba(255,255,255,.92);font-size:11px;font-weight:700}
+.dif{font-size:10px;padding:3px 8px;border-radius:4px;font-weight:800}
+.card-pts{font-size:11px;font-weight:800;color:#0d1b3e}
+.ff{padding:7px 13px;border-top:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.btn-s{flex:1;padding:8px 4px;border-radius:8px;font-size:11.5px;font-weight:800;cursor:pointer;transition:all .15s;border:1.5px solid}
 </style>
 </head>
 <body>
@@ -662,28 +705,17 @@ function updateDeckCount(){
 function cardBackHTML(bannerColor, bannerIcon, bannerLabel, forPile){
   const imgHtml = logoUrl
     ? `<img src="${logoUrl}" alt="Logo" onerror="this.style.display='none'">`
-    : `<div class="${forPile?'pc-img-ph':'back-img-placeholder'}">🛡️</div>`;
-  if(forPile){
-    return `
-      <div class="pc-top">
-        <div class="pc-img-wrap">${imgHtml}</div>
-        <div class="pc-title">SEMAINE SÉCURITÉ<br>2026</div>
-      </div>
-      <div class="pc-banner" style="background:${bannerColor}">
-        <div class="pc-icon">${bannerIcon}</div>
-        <div class="pc-text">${bannerLabel}</div>
-      </div>`;
-  } else {
-    return `
-      <div class="back-top">
-        <div class="back-img-wrap">${imgHtml}</div>
-        <div class="back-title">SEMAINE SÉCURITÉ<br>2026</div>
-      </div>
-      <div class="back-banner" style="background:${bannerColor}">
-        <div class="back-icon">${bannerIcon}</div>
-        <div class="back-text">${bannerLabel}</div>
-      </div>`;
-  }
+    : `<div class="pc-img-ph">🛡️</div>`;
+  // Utilisé uniquement pour la PILE (forPile=true toujours désormais)
+  return `
+    <div class="pc-top">
+      <div class="pc-img-wrap">${imgHtml}</div>
+      <div class="pc-title">SEMAINE SÉCURITÉ 2026</div>
+    </div>
+    <div class="pc-banner" style="background:${bannerColor}">
+      <div class="pc-icon">${bannerIcon}</div>
+      <div class="pc-text">${bannerLabel}</div>
+    </div>`;
 }
 
 function renderPile(){
@@ -968,64 +1000,95 @@ function confirmLogin(){
 // ════════════════════════════════════════════════════════
 // TRACKING
 // ════════════════════════════════════════════════════════
-function trackEvent(equipe,evenement){
-  const now=new Date();
-  const entry={
-    equipe,evenement,
-    date:now.toLocaleDateString('fr-FR'),
-    heure:now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),
-    terminal:/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)?'📱 Mobile':'🖥️ Desktop',
-    ts:now.toISOString()
+function trackEvent(equipe, evenement){
+  const now = new Date();
+  const entry = {
+    equipe, evenement,
+    date:     now.toLocaleDateString('fr-FR'),
+    heure:    now.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'}),
+    terminal: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? '📱 Mobile' : '🖥️ Desktop',
+    ts:       now.toISOString()
   };
-  try{
-    const log=JSON.parse(localStorage.getItem(LS_TRACK_LOG)||'[]');
+  // 1. Sauvegarder localement (toujours)
+  try {
+    const log = JSON.parse(localStorage.getItem(LS_TRACK_LOG)||'[]');
     log.unshift(entry);
-    if(log.length>300) log.length=300;
-    localStorage.setItem(LS_TRACK_LOG,JSON.stringify(log));
-  }catch(e){}
-  const url=localStorage.getItem(LS_TRACK_URL);
-  if(url){ fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(entry)}).catch(()=>{}); }
+    if(log.length > 300) log.length = 300;
+    localStorage.setItem(LS_TRACK_LOG, JSON.stringify(log));
+    console.log('[Tracking] Enregistré localement:', equipe, evenement);
+  } catch(e) { console.warn('[Tracking] Erreur locale:', e); }
+  // 2. Envoyer vers Google Sheets si URL configurée
+  const url = localStorage.getItem(LS_TRACK_URL);
+  if(url){
+    console.log('[Tracking] Envoi vers Google Sheets...');
+    fetch(url, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(entry) })
+      .then(() => console.log('[Tracking] ✅ Envoyé'))
+      .catch(err => console.warn('[Tracking] ❌ Erreur:', err));
+  }
 }
+
 function renderTrackLog(){
-  const logEl=document.getElementById('track-log');
-  const statsEl=document.getElementById('track-stats');
-  if(!logEl||!statsEl) return;
-  try{
-    const log=JSON.parse(localStorage.getItem(LS_TRACK_LOG)||'[]');
-    if(!log.length){ logEl.innerHTML='<div class="track-empty">Aucune connexion enregistrée.</div>'; statsEl.innerHTML=''; return; }
-    const nbCo=log.filter(e=>e.evenement==='Connexion').length;
-    const teams=[...new Set(log.map(e=>e.equipe))].length;
-    statsEl.innerHTML=`
+  const logEl   = document.getElementById('track-log');
+  const statsEl = document.getElementById('track-stats');
+  if(!logEl || !statsEl) return;
+  try {
+    const log = JSON.parse(localStorage.getItem(LS_TRACK_LOG)||'[]');
+    if(!log.length){
+      logEl.innerHTML = '<div class="track-empty">Aucune connexion enregistrée.<br><small>Les équipes doivent saisir leur nom au démarrage.</small></div>';
+      statsEl.innerHTML = '';
+      return;
+    }
+    const nbCo  = log.filter(e => e.evenement === 'Connexion').length;
+    const teams = [...new Set(log.map(e => e.equipe))].length;
+    statsEl.innerHTML = `
       <div class="track-stat"><div class="ts-v">${nbCo}</div><div class="ts-l">Connexions</div></div>
       <div class="track-stat"><div class="ts-v">${teams}</div><div class="ts-l">Équipes uniques</div></div>
-      <div class="track-stat"><div class="ts-v">${log.length}</div><div class="ts-l">Événements total</div></div>`;
-    logEl.innerHTML=log.map(e=>`
+      <div class="track-stat"><div class="ts-v">${log.length}</div><div class="ts-l">Événements</div></div>`;
+    logEl.innerHTML = log.map(e => `
       <div class="track-row">
         <span class="track-team">${e.equipe}</span>
-        <span class="track-info">${e.date} ${e.heure}&nbsp;${e.terminal}</span>
-        <span class="track-badge ${e.evenement.toLowerCase()}">${e.evenement}</span>
+        <span class="track-info">${e.date} ${e.heure}&nbsp;&nbsp;${e.terminal}</span>
+        <span class="track-badge connexion">${e.evenement}</span>
       </div>`).join('');
-  }catch(er){ logEl.innerHTML='<div class="track-empty">Erreur de lecture.</div>'; }
+  } catch(er){ logEl.innerHTML = '<div class="track-empty">Erreur de lecture du journal.</div>'; }
 }
-function clearTrackLog(){ if(!confirm('Vider le journal local des connexions ?')) return; localStorage.removeItem(LS_TRACK_LOG); renderTrackLog(); }
+
+function clearTrackLog(){
+  if(!confirm('Vider le journal local des connexions ?')) return;
+  localStorage.removeItem(LS_TRACK_LOG); renderTrackLog();
+}
+
 function saveTrackingUrl(){
-  const url=document.getElementById('tracking-url').value.trim();
-  if(!url){alert('Entrez une URL.');return;}
-  localStorage.setItem(LS_TRACK_URL,url);
-  showSt('tracking-ok','✅ URL sauvegardée — les prochaines connexions seront envoyées vers Google Sheets.'); hideSt('tracking-err');
+  const url = document.getElementById('tracking-url').value.trim();
+  if(!url){ alert('Entrez une URL.'); return; }
+  localStorage.setItem(LS_TRACK_URL, url);
+  showSt('tracking-ok', '✅ URL sauvegardée — les prochaines connexions seront envoyées vers Google Sheets.');
+  hideSt('tracking-err');
 }
+
 function clearTrackingUrl(){
-  if(!confirm('Supprimer l\'URL de tracking ?'))return;
-  localStorage.removeItem(LS_TRACK_URL); document.getElementById('tracking-url').value='';
+  if(!confirm('Supprimer l'URL de tracking ?')) return;
+  localStorage.removeItem(LS_TRACK_URL);
+  document.getElementById('tracking-url').value = '';
   showSt('tracking-ok','🗑 URL supprimée.'); hideSt('tracking-err');
 }
+
 function testTrackingUrl(){
-  const url=document.getElementById('tracking-url').value.trim();
-  if(!url){showSt('tracking-err','❌ Entrez une URL d\'abord.');hideSt('tracking-ok');return;}
-  showSt('tracking-ok','⏳ Envoi test en cours…');hideSt('tracking-err');
-  fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({equipe:'TEST ADMIN',evenement:'Test',date:new Date().toLocaleDateString('fr-FR'),heure:new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),terminal:'Admin',ts:new Date().toISOString()})
-  }).then(()=>showSt('tracking-ok','✅ Requête envoyée. Vérifiez votre Google Sheet dans 5 sec.')).catch(()=>showSt('tracking-ok','✅ Requête envoyée (no-cors). Vérifiez votre Google Sheet.'));
+  const url = document.getElementById('tracking-url').value.trim();
+  if(!url){ showSt('tracking-err','❌ Entrez une URL d'abord.'); hideSt('tracking-ok'); return; }
+  showSt('tracking-ok','⏳ Envoi d'un événement test en cours…'); hideSt('tracking-err');
+  const testEntry = { equipe:'🔧 TEST ADMIN', evenement:'Test',
+    date: new Date().toLocaleDateString('fr-FR'),
+    heure: new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),
+    terminal:'Admin Panel', ts: new Date().toISOString() };
+  fetch(url, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(testEntry) })
+    .then(() => {
+      showSt('tracking-ok','✅ Requête envoyée ! Vérifiez votre Google Sheet dans 10 secondes. Si rien n'apparaît → vérifiez que le déploiement Apps Script est réglé sur "Tout le monde".');
+      const log = JSON.parse(localStorage.getItem(LS_TRACK_LOG)||'[]');
+      log.unshift(testEntry); localStorage.setItem(LS_TRACK_LOG, JSON.stringify(log));
+      renderTrackLog();
+    })
+    .catch(err => showSt('tracking-err', '❌ Erreur réseau : ' + err.message));
 }
 
 // ════════════════════════════════════════════════════════
