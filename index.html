@@ -451,6 +451,9 @@ input[type=text].login-in::placeholder{color:#bbb}
       <button class="btn btn-sec" onclick="saveTrackingUrl()">💾 Sauvegarder</button>
       <button class="btn btn-red" onclick="clearTrackingUrl()">🗑 Effacer</button>
     </div>
+    <div class="ar" style="margin-top:4px">
+      <button class="btn btn-pri" id="btn-export-tracking" onclick="exportHTMLWithTracking()" style="display:none;background:#166534;border-color:#166534;width:100%">📥 Générer HTML avec tracking intégré — à redistribuer à tous</button>
+    </div>
     <div style="margin-top:14px">
       <h4 style="font-size:.82rem;color:#0d1b3e;margin-bottom:8px;font-weight:700">📋 Journal local des connexions</h4>
       <div class="track-stats" id="track-stats"></div>
@@ -511,6 +514,12 @@ const LS_SCORE     = 'sec2026_score';
 const LS_TRACK_URL = 'sec2026_trackurl';
 const LS_TRACK_LOG = 'sec2026_tracklog';
 const LS_LOGO      = 'sec2026_logourl';
+
+// ════════════════════════════════════════════════════════
+// URL TRACKING EMBARQUÉE — à remplir une fois pour toutes
+// Collez ici l'URL de votre Google Apps Script
+// ════════════════════════════════════════════════════════
+const DEFAULT_TRACKING_URL = 'https://script.google.com/macros/s/AKfycbz0UROKZFED3sSDTgUzlljlHgZUZwdfx87BmWBXb4w54NCGHmn69UHc46TZoSXPt14I_w/exec';
 
 // ════════════════════════════════════════════════════════
 // ÉTAT
@@ -959,8 +968,8 @@ function refreshCfgInfo(){
   const el=document.getElementById('cfg-info');
   const savedUrl=localStorage.getItem(LS_URL);
   if(savedUrl) document.getElementById('gh-url').value=savedUrl;
-  const savedTrackUrl=localStorage.getItem(LS_TRACK_URL);
-  if(savedTrackUrl) document.getElementById('tracking-url').value=savedTrackUrl;
+  const savedTrackUrl=localStorage.getItem(LS_TRACK_URL)||DEFAULT_TRACKING_URL;
+  if(savedTrackUrl){ document.getElementById('tracking-url').value=savedTrackUrl; document.getElementById('btn-export-tracking').style.display='inline-flex'; }
   const savedLogo=localStorage.getItem(LS_LOGO);
   if(savedLogo){ logoUrl=savedLogo; document.getElementById('logo-url').value=savedLogo; }
   if(raw){ try{ const d=JSON.parse(raw); const src=d.isEmbedded?'(embarquées)':'(importé)'; el.innerHTML=`<span style="color:#166534">✅</span> <strong>${d.questions.length} questions</strong> — ${Object.keys(d.themes||{}).length} thèmes ${src}${d.importedAt?' · '+new Date(d.importedAt).toLocaleDateString('fr-FR'):''}`;} catch(e){el.textContent='Config invalide.';} }
@@ -1015,13 +1024,16 @@ function trackEvent(equipe, evenement){
     localStorage.setItem(LS_TRACK_LOG, JSON.stringify(log));
     console.log('[Tracking] Enregistré localement:', equipe, evenement);
   } catch(e) { console.warn('[Tracking] Erreur locale:', e); }
-  // 2. Envoyer vers Google Sheets si URL configurée
-  const url = localStorage.getItem(LS_TRACK_URL);
+  // 2. Envoyer vers Google Sheets
+  // Priorité : URL sauvegardée en admin > URL embarquée dans le code
+  const url = localStorage.getItem(LS_TRACK_URL) || DEFAULT_TRACKING_URL;
   if(url){
-    console.log('[Tracking] Envoi vers Google Sheets...');
+    console.log('[Tracking] Envoi vers Google Sheets:', url.substring(0,60)+'...');
     fetch(url, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(entry) })
       .then(() => console.log('[Tracking] ✅ Envoyé'))
       .catch(err => console.warn('[Tracking] ❌ Erreur:', err));
+  } else {
+    console.log('[Tracking] Aucune URL configurée — enregistrement local uniquement');
   }
 }
 
@@ -1060,8 +1072,9 @@ function saveTrackingUrl(){
   const url = document.getElementById('tracking-url').value.trim();
   if(!url){ alert('Entrez une URL.'); return; }
   localStorage.setItem(LS_TRACK_URL, url);
-  showSt('tracking-ok', '✅ URL sauvegardée — les prochaines connexions seront envoyées vers Google Sheets.');
+  showSt('tracking-ok', '✅ URL sauvegardée localement. Pour que tous les appareils envoient leurs logs, cliquez sur "Générer HTML avec tracking intégré" ci-dessous et redistribuez ce nouveau fichier.');
   hideSt('tracking-err');
+  document.getElementById('btn-export-tracking').style.display = 'inline-flex';
 }
 
 function clearTrackingUrl(){
@@ -1116,6 +1129,27 @@ function clearLogo(){
 // ════════════════════════════════════════════════════════
 // EXPORT HTML AUTONOME
 // ════════════════════════════════════════════════════════
+function exportHTMLWithTracking(){
+  const trackUrl = localStorage.getItem(LS_TRACK_URL) || DEFAULT_TRACKING_URL;
+  if(!trackUrl){ alert('Aucune URL de tracking configurée. Saisissez l\'URL Apps Script et cliquez Sauvegarder d\'abord.'); return; }
+  if(!gameData) gameData = EMBEDDED_DATA;
+  // Embed config + tracking URL into the HTML
+  const sc = `<script id="ec">window.__EC__=${JSON.stringify(gameData)};<\/script>`;
+  let exported = document.documentElement.outerHTML;
+  // Inject embedded config
+  exported = exported.replace('</head>', sc + '\n</head>');
+  // Bake in the tracking URL as the default constant
+  exported = exported.replace(
+    `const DEFAULT_TRACKING_URL = 'https://script.google.com/macros/s/AKfycbz0UROKZFED3sSDTgUzlljlHgZUZwdfx87BmWBXb4w54NCGHmn69UHc46TZoSXPt14I_w/exec';`,
+    `const DEFAULT_TRACKING_URL = '${trackUrl}';  // URL intégrée par l'admin`
+  );
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([exported], {type:'text/html;charset=utf-8'}));
+  a.download = 'securite_2026_AVEC_TRACKING.html';
+  a.click();
+  showSt('tracking-ok', '✅ Fichier généré ! Redistribuez "securite_2026_AVEC_TRACKING.html" à tous les joueurs. Leur tracking sera automatique dès l\'ouverture.');
+}
+
 function exportHTML(){ if(!gameData)return; const sc=`<script id="ec">window.__EC__=${JSON.stringify(gameData)};<\/script>`; const html=document.documentElement.outerHTML.replace('</head>',sc+'\n</head>'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'})); a.download='securite_2026_export.html'; a.click(); }
 if(window.__EC__) localStorage.setItem(LS_CONFIG,JSON.stringify(window.__EC__));
 </script>
