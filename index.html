@@ -6,1201 +6,648 @@
 <title>Semaine Sécurité 2026 — Jeu de Cartes</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-  /* ─── VARIABLES ─── */
   :root {
-    --c-bg: #0d1117;
-    --c-surface: #161b22;
-    --c-card: #1c2330;
-    --c-border: #30363d;
-    --c-accent: #e6a817;
-    --c-accent2: #f0c040;
-    --c-danger: #e55353;
-    --c-success: #3fb950;
-    --c-text: #e6edf3;
-    --c-muted: #8b949e;
-    --c-admin: #58a6ff;
-    --radius: 14px;
-    --shadow: 0 8px 32px rgba(0,0,0,.45);
+    --c-bg: #0d1117; --c-surface: #161b22; --c-card: #1c2330;
+    --c-border: #30363d; --c-accent: #e6a817; --c-danger: #e55353;
+    --c-success: #3fb950; --c-text: #e6edf3; --c-muted: #8b949e;
+    --c-admin: #58a6ff; --radius: 14px; --shadow: 0 8px 32px rgba(0,0,0,.5);
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background: var(--c-bg);
-    color: var(--c-text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--c-bg); color: var(--c-text); min-height: 100vh; }
 
-  /* ─── HEADER ─── */
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 28px;
-    background: var(--c-surface);
-    border-bottom: 1px solid var(--c-border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .header-logo {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-  .logo-badge {
-    width: 44px; height: 44px;
-    background: var(--c-accent);
-    border-radius: 10px;
-    display: grid;
-    place-items: center;
-    font-size: 22px;
-  }
-  .header-title { font-size: 1.15rem; font-weight: 700; letter-spacing: .3px; }
-  .header-subtitle { font-size: .78rem; color: var(--c-muted); }
-  .header-right { display: flex; align-items: center; gap: 14px; }
-  #btn-lock {
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    opacity: .35;
-    transition: opacity .2s;
-    padding: 6px;
-    border-radius: 8px;
-  }
-  #btn-lock:hover { opacity: 1; background: rgba(255,255,255,.06); }
-  .score-badge {
-    background: var(--c-card);
-    border: 1px solid var(--c-border);
-    border-radius: 20px;
-    padding: 4px 14px;
-    font-size: .85rem;
-    font-weight: 600;
-  }
+  header { display:flex; align-items:center; justify-content:space-between; padding:12px 24px; background:var(--c-surface); border-bottom:1px solid var(--c-border); position:sticky; top:0; z-index:100; }
+  .hd-l { display:flex; align-items:center; gap:12px; }
+  .hd-badge { width:40px;height:40px;border-radius:10px;background:var(--c-accent);display:grid;place-items:center;font-size:20px; }
+  .hd-title { font-size:1.05rem;font-weight:700; }
+  .hd-sub { font-size:.75rem;color:var(--c-muted); }
+  .hd-r { display:flex;align-items:center;gap:12px; }
+  #btn-lock { background:none;border:none;font-size:18px;cursor:pointer;opacity:.3;transition:opacity .2s;padding:6px;border-radius:8px; }
+  #btn-lock:hover { opacity:1;background:rgba(255,255,255,.06); }
+  .score-pill { background:var(--c-card);border:1px solid var(--c-border);border-radius:20px;padding:4px 13px;font-size:.82rem;font-weight:600;display:none; }
 
-  /* ─── MAIN ZONES ─── */
-  #zone-splash, #zone-game, #zone-admin { display: none; }
-  #zone-splash { place-items: center; min-height: calc(100vh - 70px); }
+  #zone-splash { display:grid;place-items:center;min-height:calc(100vh - 66px); }
+  #zone-game, #zone-admin { display:none; }
 
-  /* ─── SPLASH ─── */
-  .splash-box {
-    text-align: center;
-    padding: 60px 40px;
-    background: var(--c-surface);
-    border: 1px solid var(--c-border);
-    border-radius: var(--radius);
-    max-width: 460px;
-    margin: auto;
-  }
-  .splash-icon { font-size: 72px; margin-bottom: 24px; }
-  .splash-box h2 { font-size: 1.5rem; margin-bottom: 10px; }
-  .splash-box p { color: var(--c-muted); font-size: .95rem; line-height: 1.6; }
-  .splash-waiting {
-    margin-top: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    color: var(--c-accent);
-    font-size: .9rem;
-  }
-  .dot-spin {
-    width: 10px; height: 10px;
-    background: var(--c-accent);
-    border-radius: 50%;
-    animation: pulse 1.4s ease-in-out infinite;
-  }
-  @keyframes pulse { 0%,100%{opacity:.2} 50%{opacity:1} }
+  .splash-box { text-align:center;padding:56px 40px;background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);max-width:440px; }
+  .splash-icon { font-size:64px;margin-bottom:20px; }
+  .splash-box h2 { margin-bottom:10px; }
+  .splash-box p { color:var(--c-muted);font-size:.92rem;line-height:1.6; }
+  .waiting { margin-top:24px;display:flex;align-items:center;justify-content:center;gap:10px;color:var(--c-accent);font-size:.88rem; }
+  .dot { width:9px;height:9px;background:var(--c-accent);border-radius:50%;animation:blink 1.4s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:.2}50%{opacity:1} }
 
-  /* ─── GAME ZONE ─── */
-  #zone-game {
-    padding: 28px;
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-  .game-controls {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-  .filter-btn {
-    padding: 7px 16px;
-    border-radius: 20px;
-    border: 1px solid var(--c-border);
-    background: var(--c-card);
-    color: var(--c-text);
-    cursor: pointer;
-    font-size: .85rem;
-    transition: all .2s;
-  }
-  .filter-btn.active, .filter-btn:hover {
-    border-color: var(--c-accent);
-    color: var(--c-accent);
-    background: rgba(230,168,23,.08);
-  }
+  #zone-game { padding:22px 24px;max-width:1160px;margin:0 auto; }
+  .progress-bar { height:4px;background:var(--c-border);border-radius:2px;margin-bottom:18px; }
+  .progress-fill { height:100%;background:var(--c-accent);border-radius:2px;transition:width .4s; }
 
-  /* ─── CARD GRID ─── */
-  .card-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 16px;
-  }
+  .players-row { display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px; }
+  .players-row > span { font-size:.82rem;color:var(--c-muted); }
+  .p-chip { display:flex;align-items:center;gap:7px;background:var(--c-card);border:1px solid var(--c-border);border-radius:20px;padding:4px 13px;font-size:.85rem; }
+  .p-pts { font-weight:700;color:var(--c-accent); }
+  .btn-add-p { padding:4px 13px;border-radius:20px;border:1px dashed var(--c-border);background:none;color:var(--c-muted);cursor:pointer;font-size:.85rem;transition:all .2s; }
+  .btn-add-p:hover { border-color:var(--c-accent);color:var(--c-accent); }
 
-  .card-wrapper { perspective: 800px; height: 200px; cursor: pointer; }
-  .card-inner {
-    position: relative;
-    width: 100%; height: 100%;
-    transform-style: preserve-3d;
-    transition: transform .5s cubic-bezier(.4,0,.2,1);
-  }
-  .card-wrapper.flipped .card-inner { transform: rotateY(180deg); }
+  .filters { display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px; }
+  .f-btn { padding:6px 15px;border-radius:20px;border:1px solid var(--c-border);background:var(--c-card);color:var(--c-text);cursor:pointer;font-size:.82rem;transition:all .2s;white-space:nowrap; }
+  .f-btn.active { color:var(--c-accent);border-color:var(--c-accent);background:rgba(230,168,23,.08); }
+  .f-btn:hover:not(.active) { border-color:rgba(255,255,255,.25); }
 
-  .card-face {
-    position: absolute;
-    inset: 0;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    border-radius: var(--radius);
-    padding: 18px;
-    border: 1px solid var(--c-border);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    box-shadow: var(--shadow);
-    transition: border-color .2s;
-  }
-  .card-front {
-    background: var(--c-card);
-  }
-  .card-back {
-    background: var(--c-surface);
-    transform: rotateY(180deg);
-  }
-  .card-wrapper.used .card-front,
-  .card-wrapper.used .card-back {
-    opacity: .4;
-    pointer-events: none;
-  }
-  .card-cat-badge {
-    font-size: .72rem;
-    font-weight: 700;
-    letter-spacing: .5px;
-    text-transform: uppercase;
-    padding: 3px 10px;
-    border-radius: 20px;
-    display: inline-block;
-    margin-bottom: 8px;
-  }
-  .card-question {
-    font-size: .92rem;
-    line-height: 1.5;
-    flex: 1;
-    display: flex;
-    align-items: center;
-  }
-  .card-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 10px;
-  }
-  .card-pts {
-    font-size: .8rem;
-    font-weight: 700;
-    color: var(--c-accent);
-  }
-  .card-diff { font-size: .75rem; color: var(--c-muted); }
+  .card-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px; }
 
-  .card-answer {
-    font-size: .9rem;
-    line-height: 1.5;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    color: var(--c-success);
-    font-weight: 500;
-  }
-  .card-hint {
-    font-size: .78rem;
-    color: var(--c-muted);
-    font-style: italic;
-    margin-top: 8px;
-  }
-  .card-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 10px;
-  }
-  .btn-score {
-    flex: 1;
-    padding: 6px;
-    border: none;
-    border-radius: 8px;
-    font-size: .78rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity .2s;
-  }
-  .btn-ok { background: rgba(63,185,80,.2); color: var(--c-success); border: 1px solid var(--c-success); }
-  .btn-ko { background: rgba(229,83,83,.2); color: var(--c-danger); border: 1px solid var(--c-danger); }
-  .btn-ok:hover { background: rgba(63,185,80,.35); }
-  .btn-ko:hover { background: rgba(229,83,83,.35); }
+  /* Card flip */
+  .card-wrap { perspective:900px;cursor:pointer; }
+  .card-inner { position:relative;width:100%;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1); }
+  .card-wrap.flipped .card-inner { transform:rotateY(180deg); }
+  .card-wrap.used { opacity:.35;pointer-events:none; }
 
-  /* Couleurs catégories */
-  .cat-0 { background: rgba(88,166,255,.15); color: #58a6ff; border: 1px solid #58a6ff44; }
-  .cat-1 { background: rgba(63,185,80,.15); color: #3fb950; border: 1px solid #3fb95044; }
-  .cat-2 { background: rgba(230,168,23,.15); color: #e6a817; border: 1px solid #e6a81744; }
-  .cat-3 { background: rgba(229,83,83,.15); color: #e55353; border: 1px solid #e5535344; }
-  .cat-4 { background: rgba(188,140,255,.15); color: #bc8cff; border: 1px solid #bc8cff44; }
-  .cat-5 { background: rgba(249,117,20,.15); color: #f97514; border: 1px solid #f9751444; }
-  .cat-6 { background: rgba(56,189,248,.15); color: #38bdf8; border: 1px solid #38bdf844; }
-  .cat-7 { background: rgba(251,191,36,.15); color: #fbbf24; border: 1px solid #fbbf2444; }
+  .card-face { backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);border:1px solid var(--c-border);padding:16px;box-shadow:var(--shadow); }
+  .card-front { background:var(--c-card); }
+  .card-back  { background:var(--c-surface);transform:rotateY(180deg);position:absolute;inset:0;overflow:hidden; }
 
-  /* ─── SCOREBOARD ─── */
-  #scoreboard {
-    position: fixed;
-    right: 20px;
-    bottom: 20px;
-    background: var(--c-surface);
-    border: 1px solid var(--c-border);
-    border-radius: var(--radius);
-    padding: 16px 20px;
-    min-width: 180px;
-    box-shadow: var(--shadow);
-    z-index: 50;
-    display: none;
-  }
-  #scoreboard h4 { font-size: .85rem; color: var(--c-muted); margin-bottom: 10px; }
-  .score-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: .9rem;
-    padding: 4px 0;
-    border-bottom: 1px solid var(--c-border);
-  }
-  .score-row:last-child { border: none; }
-  .score-pts { font-weight: 700; color: var(--c-accent); }
+  .theme-badge { display:inline-flex;align-items:center;gap:6px;font-size:.7rem;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:10px;border:1px solid rgba(255,255,255,.15); }
+  .card-q { font-size:.9rem;line-height:1.5;margin-bottom:12px;font-weight:500; }
 
-  /* ─── MODAL ─── */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.7);
-    display: none;
-    place-items: center;
-    z-index: 200;
-    backdrop-filter: blur(4px);
-  }
-  .modal-overlay.open { display: grid; }
-  .modal {
-    background: var(--c-surface);
-    border: 1px solid var(--c-border);
-    border-radius: var(--radius);
-    padding: 32px;
-    width: 90%;
-    max-width: 420px;
-    box-shadow: var(--shadow);
-    animation: modalIn .2s ease;
-  }
-  @keyframes modalIn { from{transform:scale(.92);opacity:0} to{transform:scale(1);opacity:1} }
-  .modal h3 { margin-bottom: 20px; font-size: 1.1rem; }
-  .modal input[type=password], .modal input[type=text], .modal input[type=url] {
-    width: 100%;
-    padding: 10px 14px;
-    background: var(--c-bg);
-    border: 1px solid var(--c-border);
-    border-radius: 8px;
-    color: var(--c-text);
-    font-size: .95rem;
-    outline: none;
-    transition: border-color .2s;
-  }
-  .modal input:focus { border-color: var(--c-admin); }
-  .modal-btns { display: flex; gap: 10px; margin-top: 16px; }
-  .btn { padding: 9px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; font-size: .9rem; transition: all .2s; }
-  .btn-primary { background: var(--c-admin); color: #fff; }
-  .btn-primary:hover { background: #79baff; }
-  .btn-secondary { background: var(--c-card); color: var(--c-text); border: 1px solid var(--c-border); }
-  .btn-secondary:hover { border-color: var(--c-accent); color: var(--c-accent); }
-  .btn-danger { background: rgba(229,83,83,.15); color: var(--c-danger); border: 1px solid var(--c-danger); }
-  .btn-danger:hover { background: rgba(229,83,83,.3); }
-  .modal-error { color: var(--c-danger); font-size: .85rem; margin-top: 8px; display: none; }
+  .opts { list-style:none;display:flex;flex-direction:column;gap:5px; }
+  .opt { display:flex;align-items:flex-start;gap:8px;background:rgba(255,255,255,.04);border:1px solid var(--c-border);border-radius:8px;padding:7px 10px;font-size:.8rem;line-height:1.4;transition:all .2s; }
+  .card-front .opt:hover { border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.07); }
+  .opt-l { font-weight:700;font-size:.74rem;opacity:.55;flex-shrink:0;margin-top:1px; }
 
-  /* ─── ADMIN PANEL ─── */
-  #zone-admin {
-    max-width: 680px;
-    margin: 0 auto;
-    padding: 32px 28px;
-  }
-  .admin-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 28px;
-    padding-bottom: 18px;
-    border-bottom: 1px solid var(--c-border);
-  }
-  .admin-header h2 { font-size: 1.3rem; }
-  .admin-badge {
-    background: rgba(88,166,255,.15);
-    color: var(--c-admin);
-    border: 1px solid rgba(88,166,255,.3);
-    border-radius: 20px;
-    padding: 3px 12px;
-    font-size: .78rem;
-    font-weight: 700;
-  }
+  .card-meta { display:flex;justify-content:space-between;align-items:center;margin-top:12px; }
+  .card-pts  { font-size:.78rem;font-weight:700;color:var(--c-accent); }
+  .card-diff { font-size:.75rem;color:var(--c-muted); }
 
-  .admin-section {
-    background: var(--c-surface);
-    border: 1px solid var(--c-border);
-    border-radius: var(--radius);
-    padding: 22px;
-    margin-bottom: 18px;
-  }
-  .admin-section h3 {
-    font-size: .95rem;
-    margin-bottom: 14px;
-    color: var(--c-admin);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .admin-section p { color: var(--c-muted); font-size: .85rem; line-height: 1.6; margin-bottom: 12px; }
+  .ans-label { font-size:.75rem;color:var(--c-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px; }
+  .opt.correct { background:rgba(63,185,80,.15);border-color:var(--c-success);color:var(--c-success);font-weight:600; }
+  .opt.wrong   { opacity:.3; }
 
-  .upload-zone {
-    border: 2px dashed var(--c-border);
-    border-radius: 10px;
-    padding: 28px;
-    text-align: center;
-    cursor: pointer;
-    transition: all .2s;
-    position: relative;
-  }
-  .upload-zone:hover, .upload-zone.drag { border-color: var(--c-admin); background: rgba(88,166,255,.05); }
-  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-  .upload-zone .upload-icon { font-size: 36px; margin-bottom: 10px; }
-  .upload-zone p { margin: 0; font-size: .9rem; }
+  .card-actions { display:flex;gap:8px;margin-top:12px; }
+  .btn-s { flex:1;padding:7px 6px;border:none;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;transition:opacity .2s; }
+  .btn-ok { background:rgba(63,185,80,.18);color:var(--c-success);border:1px solid var(--c-success); }
+  .btn-ko { background:rgba(229,83,83,.18);color:var(--c-danger);border:1px solid var(--c-danger); }
+  .btn-ok:hover { background:rgba(63,185,80,.32); }
+  .btn-ko:hover { background:rgba(229,83,83,.32); }
 
-  .status-box {
-    margin-top: 14px;
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: .85rem;
-    display: none;
-  }
-  .status-ok { background: rgba(63,185,80,.1); color: var(--c-success); border: 1px solid rgba(63,185,80,.3); }
-  .status-err { background: rgba(229,83,83,.1); color: var(--c-danger); border: 1px solid rgba(229,83,83,.3); }
+  #scoreboard { position:fixed;right:18px;bottom:18px;background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);padding:14px 18px;min-width:170px;box-shadow:var(--shadow);z-index:50;display:none; }
+  #scoreboard h4 { font-size:.8rem;color:var(--c-muted);margin-bottom:9px; }
+  .sb-row { display:flex;justify-content:space-between;font-size:.88rem;padding:3px 0;border-bottom:1px solid var(--c-border); }
+  .sb-row:last-child { border:none; }
+  .sb-pts { font-weight:700;color:var(--c-accent); }
 
-  label.field-label { display: block; font-size: .82rem; color: var(--c-muted); margin-bottom: 6px; margin-top: 14px; }
-  .field-row { display: flex; gap: 10px; }
-  .field-row input { flex: 1; }
+  .overlay { position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;place-items:center;z-index:200;backdrop-filter:blur(4px); }
+  .overlay.open { display:grid; }
+  .modal { background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);padding:28px;width:90%;max-width:400px;box-shadow:var(--shadow);animation:mi .2s ease; }
+  @keyframes mi { from{transform:scale(.92);opacity:0} }
+  .modal h3 { margin-bottom:18px; }
+  .modal > p { color:var(--c-muted);font-size:.85rem;margin-bottom:14px;line-height:1.5; }
+  input[type=password],input[type=url] { width:100%;padding:9px 13px;background:var(--c-bg);border:1px solid var(--c-border);border-radius:8px;color:var(--c-text);font-size:.9rem;outline:none;transition:border-color .2s; }
+  input:focus { border-color:var(--c-admin); }
+  .m-btns { display:flex;gap:10px;margin-top:14px; }
+  .btn { padding:8px 18px;border-radius:8px;border:none;font-weight:600;cursor:pointer;font-size:.88rem;transition:all .2s; }
+  .btn-primary { background:var(--c-admin);color:#fff; }
+  .btn-primary:hover { background:#79baff; }
+  .btn-ghost { background:var(--c-card);color:var(--c-text);border:1px solid var(--c-border); }
+  .btn-ghost:hover { border-color:var(--c-accent);color:var(--c-accent); }
+  .btn-red { background:rgba(229,83,83,.15);color:var(--c-danger);border:1px solid var(--c-danger); }
+  .btn-red:hover { background:rgba(229,83,83,.28); }
+  .err-msg { color:var(--c-danger);font-size:.82rem;margin-top:7px;display:none; }
 
-  .config-preview {
-    background: var(--c-bg);
-    border: 1px solid var(--c-border);
-    border-radius: 8px;
-    padding: 12px;
-    margin-top: 12px;
-    font-size: .82rem;
-    color: var(--c-muted);
-    display: none;
-  }
-  .config-preview table { width: 100%; border-collapse: collapse; }
-  .config-preview th { color: var(--c-accent); font-size: .78rem; text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--c-border); }
-  .config-preview td { padding: 4px 8px; border-bottom: 1px solid #1c2330; }
+  .sp-btn { display:block;width:100%;text-align:left;padding:10px 14px;margin-bottom:8px;border-radius:8px;border:1px solid var(--c-border);background:var(--c-card);color:var(--c-text);cursor:pointer;font-size:.88rem;transition:all .2s; }
+  .sp-btn:hover { border-color:var(--c-success);background:rgba(63,185,80,.08); }
 
-  .action-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+  /* ADMIN */
+  #zone-admin { max-width:660px;margin:0 auto;padding:28px 24px; }
+  .adm-hd { display:flex;justify-content:space-between;align-items:center;margin-bottom:26px;padding-bottom:16px;border-bottom:1px solid var(--c-border); }
+  .adm-hd h2 { font-size:1.2rem; }
+  .adm-badge { background:rgba(88,166,255,.14);color:var(--c-admin);border:1px solid rgba(88,166,255,.28);border-radius:20px;padding:3px 11px;font-size:.75rem;font-weight:700; }
+  .adm-sec { background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius);padding:20px;margin-bottom:16px; }
+  .adm-sec h3 { font-size:.9rem;color:var(--c-admin);margin-bottom:12px; }
+  .adm-sec > p { color:var(--c-muted);font-size:.83rem;line-height:1.6;margin-bottom:10px; }
+  .drop-zone { border:2px dashed var(--c-border);border-radius:10px;padding:26px;text-align:center;cursor:pointer;transition:all .2s;position:relative; }
+  .drop-zone:hover,.drop-zone.drag { border-color:var(--c-admin);background:rgba(88,166,255,.05); }
+  .drop-zone input { position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%; }
+  .dz-icon { font-size:32px;margin-bottom:8px; }
+  .drop-zone > p { margin:0;font-size:.88rem; }
+  .status { margin-top:12px;padding:10px 14px;border-radius:8px;font-size:.83rem;display:none; }
+  .st-ok { background:rgba(63,185,80,.1);color:var(--c-success);border:1px solid rgba(63,185,80,.3); }
+  .st-err { background:rgba(229,83,83,.1);color:var(--c-danger);border:1px solid rgba(229,83,83,.3); }
+  .preview-box { margin-top:12px;display:none;overflow-x:auto;background:var(--c-bg);border:1px solid var(--c-border);border-radius:8px;padding:10px; }
+  .preview-box table { width:100%;border-collapse:collapse;font-size:.78rem; }
+  .preview-box th { color:var(--c-accent);text-align:left;padding:3px 8px;border-bottom:1px solid var(--c-border); }
+  .preview-box td { padding:3px 8px;border-bottom:1px solid #1c2330; }
+  .fl { display:block;font-size:.8rem;color:var(--c-muted);margin:12px 0 5px; }
+  .fr { display:flex;gap:9px; }
+  .fr input { flex:1; }
+  .ar { display:flex;flex-wrap:wrap;gap:9px;margin-top:14px; }
+  .fguide { background:var(--c-bg);border:1px solid var(--c-border);border-radius:8px;padding:13px;margin-top:11px;font-size:.8rem; }
+  .fguide h4 { color:var(--c-accent);margin-bottom:7px; }
+  .fguide li { margin-left:16px;margin-bottom:3px;line-height:1.6; }
+  code { background:rgba(255,255,255,.07);border-radius:4px;padding:1px 5px;font-family:monospace;font-size:.78rem; }
 
-  /* Format guide */
-  .format-guide {
-    background: var(--c-bg);
-    border: 1px solid var(--c-border);
-    border-radius: 8px;
-    padding: 14px;
-    font-size: .82rem;
-    margin-top: 12px;
+  @media(max-width:580px) {
+    header { padding:10px 14px; }
+    #zone-game { padding:14px; }
+    .card-grid { grid-template-columns:1fr 1fr;gap:10px; }
   }
-  .format-guide h4 { color: var(--c-accent); margin-bottom: 8px; }
-  .format-guide code {
-    background: rgba(255,255,255,.07);
-    border-radius: 4px;
-    padding: 2px 6px;
-    font-family: monospace;
-    font-size: .8rem;
-    color: #c9d1d9;
-  }
-  .format-guide li { margin-left: 18px; margin-bottom: 4px; line-height: 1.6; }
-
-  /* Tabs */
-  .tabs { display: flex; gap: 4px; margin-bottom: 20px; }
-  .tab-btn {
-    padding: 8px 18px;
-    border: 1px solid var(--c-border);
-    border-radius: 8px 8px 0 0;
-    background: var(--c-card);
-    color: var(--c-muted);
-    cursor: pointer;
-    font-size: .88rem;
-    border-bottom: none;
-    transition: all .2s;
-  }
-  .tab-btn.active { background: var(--c-surface); color: var(--c-text); border-bottom: 1px solid var(--c-surface); }
-
-  /* Players */
-  .players-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
-  .player-chip {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--c-card);
-    border: 1px solid var(--c-border);
-    border-radius: 20px;
-    padding: 5px 14px;
-    font-size: .88rem;
-  }
-  .player-score-chip { font-weight: 700; color: var(--c-accent); }
-  .btn-add-player {
-    padding: 5px 14px;
-    border-radius: 20px;
-    border: 1px dashed var(--c-border);
-    background: none;
-    color: var(--c-muted);
-    cursor: pointer;
-    font-size: .88rem;
-    transition: all .2s;
-  }
-  .btn-add-player:hover { border-color: var(--c-accent); color: var(--c-accent); }
-
-  /* Progress bar */
-  .progress-bar {
-    height: 4px;
-    background: var(--c-border);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-bottom: 20px;
-  }
-  .progress-fill { height: 100%; background: var(--c-accent); transition: width .5s; }
-
-  /* Responsive */
-  @media(max-width:600px) {
-    header { padding: 12px 16px; }
-    #zone-game { padding: 16px; }
-    .card-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-  }
-
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--c-bg); }
-  ::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 3px; }
+  ::-webkit-scrollbar { width:5px; }
+  ::-webkit-scrollbar-track { background:var(--c-bg); }
+  ::-webkit-scrollbar-thumb { background:var(--c-border);border-radius:3px; }
 </style>
 </head>
 <body>
 
-<!-- ═══════════ HEADER ═══════════ -->
 <header>
-  <div class="header-logo">
-    <div class="logo-badge">⚠️</div>
+  <div class="hd-l">
+    <div class="hd-badge">⚠️</div>
     <div>
-      <div class="header-title" id="game-title">Semaine Sécurité 2026</div>
-      <div class="header-subtitle" id="game-subtitle">Jeu de Cartes Interactif</div>
+      <div class="hd-title" id="hd-title">Semaine Sécurité 2026</div>
+      <div class="hd-sub" id="hd-sub">Jeu de Cartes QCM</div>
     </div>
   </div>
-  <div class="header-right">
-    <div class="score-badge" id="header-score" style="display:none">🏆 <span id="total-score">0</span> pts</div>
-    <button id="btn-lock" title="Administration" onclick="openLockModal()">🔒</button>
+  <div class="hd-r">
+    <div class="score-pill" id="score-pill">🏆 <span id="total-score">0</span> pts</div>
+    <button id="btn-lock" title="Administration" onclick="openPwModal()">🔒</button>
   </div>
 </header>
 
-<!-- ═══════════ SPLASH (no config) ═══════════ -->
-<div id="zone-splash" style="display:grid">
+<div id="zone-splash">
   <div class="splash-box">
     <div class="splash-icon">🛡️</div>
     <h2>Jeu en attente</h2>
-    <p>La configuration du jeu n'est pas encore chargée.<br>
-    L'administrateur doit importer le fichier Excel pour démarrer.</p>
-    <div class="splash-waiting">
-      <div class="dot-spin"></div>
-      En attente de la configuration…
-    </div>
+    <p>La configuration n'est pas encore chargée.<br>L'administrateur doit importer le fichier Excel.</p>
+    <div class="waiting"><div class="dot"></div>En attente de la configuration…</div>
   </div>
 </div>
 
-<!-- ═══════════ GAME ZONE ═══════════ -->
 <div id="zone-game">
-  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
-
-  <!-- Players -->
-  <div style="margin-bottom:18px;">
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-      <span style="font-size:.85rem;color:var(--c-muted);">Équipes :</span>
-      <div class="players-list" id="players-list"></div>
-      <button class="btn-add-player" onclick="addPlayer()">+ Équipe</button>
-    </div>
+  <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+  <div class="players-row">
+    <span>Équipes :</span>
+    <div id="p-chips"></div>
+    <button class="btn-add-p" onclick="addPlayer()">+ Équipe</button>
   </div>
-
-  <!-- Filtres catégories -->
-  <div class="game-controls" id="cat-filters"></div>
-
-  <!-- Grille de cartes -->
+  <div class="filters" id="filters"></div>
   <div class="card-grid" id="card-grid"></div>
 </div>
 
-<!-- ═══════════ ADMIN ZONE ═══════════ -->
 <div id="zone-admin">
-  <div class="admin-header">
+  <div class="adm-hd">
     <h2>🛠️ Administration</h2>
-    <div style="display:flex;gap:10px;align-items:center;">
-      <span class="admin-badge">ADMIN</span>
-      <button class="btn btn-secondary" onclick="exitAdmin()">← Retour au jeu</button>
+    <div style="display:flex;gap:10px;align-items:center">
+      <span class="adm-badge">ADMIN</span>
+      <button class="btn btn-ghost" onclick="exitAdmin()">← Retour</button>
     </div>
   </div>
 
-  <!-- Section 1 : Import Excel -->
-  <div class="admin-section">
-    <h3>📊 Import de la configuration (Excel)</h3>
-    <p>Uploadez votre fichier <code>.xlsx</code> pour charger les cartes du jeu. La configuration sera sauvegardée localement.</p>
-
-    <div class="upload-zone" id="drop-zone" ondragover="handleDrag(event,true)" ondragleave="handleDrag(event,false)" ondrop="handleDrop(event)">
-      <input type="file" id="file-input" accept=".xlsx,.xls" onchange="handleFileInput(event)">
-      <div class="upload-icon">📁</div>
-      <p><strong>Glissez votre fichier Excel ici</strong><br>
-      <span style="color:var(--c-muted);font-size:.82rem">ou cliquez pour sélectionner</span></p>
+  <div class="adm-sec">
+    <h3>📊 Import Excel</h3>
+    <p>Importez votre fichier <code>.xlsx</code> — feuille <code>Config</code> (thèmes) + feuille <code>Questions</code> (QCM 4 options).</p>
+    <div class="drop-zone" id="drop-zone" ondragover="onDrag(event,true)" ondragleave="onDrag(event,false)" ondrop="onDrop(event)">
+      <input type="file" accept=".xlsx,.xls" onchange="onFileInput(event)">
+      <div class="dz-icon">📁</div>
+      <p><strong>Glissez votre Excel ici</strong><br><span style="color:var(--c-muted);font-size:.8rem">ou cliquez pour sélectionner</span></p>
     </div>
-
-    <div class="status-box" id="import-status"></div>
-
-    <div class="config-preview" id="config-preview">
-      <strong style="font-size:.82rem;color:var(--c-accent)">Aperçu :</strong>
-      <div id="preview-table" style="margin-top:8px;overflow-x:auto;"></div>
-    </div>
-
-    <div class="format-guide">
-      <h4>📋 Format Excel attendu</h4>
+    <div class="status" id="import-st"></div>
+    <div class="preview-box" id="preview-box"><table id="preview-tbl"></table></div>
+    <div class="fguide">
+      <h4>📋 Format Excel attendu (votre format)</h4>
       <ul>
-        <li>Feuille <code>Questions</code> (ou première feuille)</li>
-        <li>Ligne 1 = en-têtes de colonnes</li>
-        <li>Colonnes reconnues : <code>Question</code>, <code>Reponse</code> / <code>Réponse</code>, <code>Categorie</code> / <code>Catégorie</code>, <code>Points</code>, <code>Difficulte</code> / <code>Difficulté</code>, <code>Indice</code></li>
-        <li>Colonnes manquantes → valeurs par défaut appliquées</li>
+        <li>Feuille <code>Config</code> : ligne 3 = en-têtes → <code>ThemeID</code>, <code>Label</code>, <code>Couleur</code>, <code>Icone</code>, <code>NbJeux</code></li>
+        <li>Feuille <code>Questions</code> : ligne 3 = en-têtes → <code>Theme</code>, <code>Question</code>, <code>OptionA</code>, <code>OptionB</code>, <code>OptionC</code>, <code>OptionD</code>, <code>BonneReponse</code> (0=A, 1=B…), <code>Difficulte</code></li>
+        <li>Lignes 1 et 2 = titre + notes (ignorées automatiquement)</li>
+        <li>Points auto : <code>facile</code>=1pt, <code>moyen</code>=2pts, <code>difficile</code>=3pts</li>
       </ul>
     </div>
-
-    <div class="action-row">
-      <button class="btn btn-primary" onclick="document.getElementById('file-input').click()">📤 Choisir un fichier</button>
-      <button class="btn btn-secondary" id="btn-export-html" onclick="exportHTML()" style="display:none">💾 Exporter HTML + config</button>
+    <div class="ar">
+      <button class="btn btn-primary" onclick="document.querySelector('#drop-zone input').click()">📤 Choisir fichier</button>
+      <button class="btn btn-ghost" id="btn-export" onclick="exportHTML()" style="display:none">💾 Exporter HTML</button>
     </div>
   </div>
 
-  <!-- Section 2 : URL GitHub -->
-  <div class="admin-section">
-    <h3>🔗 Chargement automatique (GitHub / URL)</h3>
-    <p>Si votre fichier Excel est hébergé sur GitHub ou un serveur accessible, renseignez l'URL Raw pour qu'il se charge automatiquement au démarrage (pour tous les utilisateurs ouvrant ce fichier HTML).</p>
-
-    <label class="field-label">URL Raw du fichier Excel</label>
-    <div class="field-row">
-      <input type="url" id="github-url" placeholder="https://raw.githubusercontent.com/…/jeu_securite_2026_CONFIG.xlsx">
-      <button class="btn btn-primary" onclick="fetchFromURL()">Tester</button>
+  <div class="adm-sec">
+    <h3>🔗 URL GitHub (chargement auto)</h3>
+    <p>URL Raw du fichier Excel sur GitHub — rechargé automatiquement à chaque ouverture.</p>
+    <label class="fl">URL Raw GitHub</label>
+    <div class="fr">
+      <input type="url" id="gh-url" placeholder="https://raw.githubusercontent.com/…/config.xlsx">
+      <button class="btn btn-primary" onclick="testGhUrl()">Tester</button>
     </div>
-    <div class="status-box" id="url-status"></div>
-
-    <label class="field-label" style="margin-top:16px">URL sauvegardée</label>
-    <div style="font-size:.82rem;color:var(--c-muted);background:var(--c-bg);padding:8px 12px;border-radius:6px;border:1px solid var(--c-border)" id="saved-url-display">—</div>
-
-    <div class="action-row">
-      <button class="btn btn-secondary" onclick="saveGithubURL()">💾 Sauvegarder l'URL</button>
-      <button class="btn btn-danger" onclick="clearGithubURL()">🗑 Effacer l'URL</button>
+    <div class="status" id="url-st"></div>
+    <div class="ar">
+      <button class="btn btn-ghost" onclick="saveGhUrl()">💾 Sauvegarder</button>
+      <button class="btn btn-red" onclick="clearGhUrl()">🗑 Effacer</button>
     </div>
   </div>
 
-  <!-- Section 3 : Gestion config -->
-  <div class="admin-section">
-    <h3>⚙️ Gestion de la configuration actuelle</h3>
-    <div id="current-config-info" style="font-size:.85rem;color:var(--c-muted);">Aucune configuration chargée.</div>
-    <div class="action-row" style="margin-top:14px;">
-      <button class="btn btn-secondary" onclick="resetGame()">🔄 Réinitialiser le jeu (scores)</button>
-      <button class="btn btn-danger" onclick="clearConfig()">🗑 Supprimer la configuration</button>
-    </div>
-  </div>
-
-</div>
-
-<!-- ═══════════ MODAL MOT DE PASSE ═══════════ -->
-<div class="modal-overlay" id="modal-pw">
-  <div class="modal">
-    <h3>🔒 Zone Administration</h3>
-    <p style="color:var(--c-muted);font-size:.85rem;margin-bottom:16px;">Entrez le mot de passe pour accéder au panneau d'administration.</p>
-    <input type="password" id="pw-input" placeholder="Mot de passe…" onkeydown="if(event.key==='Enter')checkPassword()">
-    <div class="modal-error" id="pw-error">Mot de passe incorrect.</div>
-    <div class="modal-btns">
-      <button class="btn btn-primary" onclick="checkPassword()">Confirmer</button>
-      <button class="btn btn-secondary" onclick="closeLockModal()">Annuler</button>
+  <div class="adm-sec">
+    <h3>⚙️ Configuration active</h3>
+    <div id="cfg-info" style="font-size:.85rem;color:var(--c-muted)">Aucune configuration.</div>
+    <div class="ar">
+      <button class="btn btn-ghost" onclick="resetGame()">🔄 Reset scores</button>
+      <button class="btn btn-red" onclick="clearConfig()">🗑 Supprimer config</button>
     </div>
   </div>
 </div>
 
-<!-- ═══════════ MODAL SCORE PLAYER ═══════════ -->
-<div class="modal-overlay" id="modal-score">
-  <div class="modal">
-    <h3>🏆 Attribuer les points</h3>
-    <p style="color:var(--c-muted);font-size:.85rem;margin-bottom:16px;">Quelle équipe a bien répondu ?</p>
-    <div id="score-player-list"></div>
-    <div class="modal-btns" style="margin-top:16px;">
-      <button class="btn btn-secondary" onclick="closeScoreModal()">Aucune / Ignorer</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════ SCOREBOARD FIXE ═══════════ -->
 <div id="scoreboard">
   <h4>🏆 Scores</h4>
-  <div id="scoreboard-rows"></div>
+  <div id="sb-rows"></div>
 </div>
 
-<!-- ═══════════ SCRIPT ═══════════ -->
+<div class="overlay" id="modal-pw">
+  <div class="modal">
+    <h3>🔒 Administration</h3>
+    <p>Mot de passe requis.</p>
+    <input type="password" id="pw-in" placeholder="Mot de passe…" onkeydown="if(event.key==='Enter')checkPw()">
+    <div class="err-msg" id="pw-err">Mot de passe incorrect.</div>
+    <div class="m-btns">
+      <button class="btn btn-primary" onclick="checkPw()">Confirmer</button>
+      <button class="btn btn-ghost" onclick="closePwModal()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-score">
+  <div class="modal">
+    <h3>🏆 Attribuer les points</h3>
+    <p>Quelle équipe a bien répondu ?</p>
+    <div id="score-list"></div>
+    <div class="m-btns" style="margin-top:12px">
+      <button class="btn btn-ghost" onclick="closeScoreModal()">Aucune / Ignorer</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// ════════════════════════════════════════════
-// CONFIG — Modifier ici si besoin
-// ════════════════════════════════════════════
-const ADMIN_PASSWORD = 'Ortec2026!';
-const LS_CONFIG_KEY  = 'securite2026_config';
-const LS_SCORES_KEY  = 'securite2026_scores';
-const LS_URL_KEY     = 'securite2026_github_url';
-const LS_USED_KEY    = 'securite2026_used_cards';
+const ADMIN_PW  = 'Ortec2026!';
+const LS_CONFIG = 'sec2026_config';
+const LS_SCORES = 'sec2026_scores';
+const LS_USED   = 'sec2026_used';
+const LS_URL    = 'sec2026_ghurl';
 
-// ════════════════════════════════════════════
-// STATE
-// ════════════════════════════════════════════
-let gameData    = null;  // { questions: [], title, subtitle }
-let scores      = {};    // { playerName: pts }
-let usedCards   = new Set();
-let catColorMap = {};
-let activeCat   = 'all';
-let pendingCardPts = 0;
+let gameData  = null;
+let scores    = {};
+let usedCards = new Set();
+let activeCat = 'all';
 
-// ════════════════════════════════════════════
-// INIT
-// ════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', async () => {
-  loadScores();
-  loadUsedCards();
-
-  const savedUrl = localStorage.getItem(LS_URL_KEY);
-  if (savedUrl) {
-    try {
-      await fetchExcelFromUrl(savedUrl, true);
-      return;
-    } catch(e) { /* fallback to localStorage config */ }
-  }
-
-  const raw = localStorage.getItem(LS_CONFIG_KEY);
-  if (raw) {
-    try {
-      gameData = JSON.parse(raw);
-      startGame();
-    } catch(e) {
-      showSplash();
-    }
-  } else {
-    showSplash();
-  }
+  loadScores(); loadUsed();
+  const url = localStorage.getItem(LS_URL);
+  if (url) { try { await fetchFromUrl(url, true); return; } catch(e) {} }
+  const raw = localStorage.getItem(LS_CONFIG);
+  if (raw) { try { gameData = JSON.parse(raw); startGame(); return; } catch(e) {} }
+  showSplash();
 });
 
-// ════════════════════════════════════════════
-// ZONES
-// ════════════════════════════════════════════
-function showSplash() {
-  document.getElementById('zone-splash').style.display = 'grid';
-  document.getElementById('zone-game').style.display   = 'none';
-  document.getElementById('zone-admin').style.display  = 'none';
+function showSplash() { show('zone-splash'); hide('zone-game'); hide('zone-admin'); }
+function startGame()  {
+  if (!gameData?.questions?.length) { showSplash(); return; }
+  hide('zone-splash'); show('zone-game'); hide('zone-admin');
+  document.getElementById('hd-title').textContent = gameData.title    || 'Semaine Sécurité 2026';
+  document.getElementById('hd-sub').textContent   = gameData.subtitle || 'Jeu de Cartes QCM';
+  buildFilters(); renderCards(); renderScoreboard(); updateProgress();
 }
-function startGame() {
-  if (!gameData || !gameData.questions || gameData.questions.length === 0) { showSplash(); return; }
-  document.getElementById('zone-splash').style.display = 'none';
-  document.getElementById('zone-game').style.display   = 'block';
-  document.getElementById('zone-admin').style.display  = 'none';
-
-  if (gameData.title)    document.getElementById('game-title').textContent    = gameData.title;
-  if (gameData.subtitle) document.getElementById('game-subtitle').textContent = gameData.subtitle;
-
-  buildCategoryMap();
-  buildFilters();
-  renderCards();
-  renderScoreboard();
-  updateProgress();
-}
-function showAdmin() {
-  document.getElementById('zone-splash').style.display = 'none';
-  document.getElementById('zone-game').style.display   = 'none';
-  document.getElementById('zone-admin').style.display  = 'block';
-  refreshAdminInfo();
-}
+function showAdmin() { hide('zone-splash'); hide('zone-game'); show('zone-admin'); refreshCfgInfo(); }
 function exitAdmin() {
-  const raw = localStorage.getItem(LS_CONFIG_KEY);
-  if (raw && gameData) startGame();
-  else if (raw) { try { gameData = JSON.parse(raw); startGame(); } catch(e) { showSplash(); } }
-  else showSplash();
+  const raw = localStorage.getItem(LS_CONFIG);
+  if (raw) { try { gameData = JSON.parse(raw); startGame(); return; } catch(e) {} }
+  showSplash();
+}
+function show(id) { document.getElementById(id).style.display = 'block'; }
+function hide(id) { document.getElementById(id).style.display = 'none'; }
+
+// ── PARSER ──────────────────────────────────
+function parseWorkbook(wb) {
+  // Config sheet → themes
+  const themes = {};
+  const cfgName = wb.SheetNames.find(n => n.toLowerCase() === 'config');
+  if (cfgName) {
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[cfgName], { header: 1, defval: '' });
+    // Header is on row index where ThemeID/Theme appears (skip 2 info rows)
+    let hi = rows.findIndex(r => r.some(c => /themeid|theme/i.test(String(c))));
+    if (hi < 0) hi = 0;
+    const hdr = rows[hi].map(c => String(c).toLowerCase().replace(/[^a-z0-9]/g,''));
+    const iId  = hdr.findIndex(h => h.includes('themeid') || h === 'theme');
+    const iLbl = hdr.findIndex(h => h.includes('label'));
+    const iCol = hdr.findIndex(h => h.includes('couleur') || h.includes('color'));
+    const iIco = hdr.findIndex(h => h.includes('icone') || h.includes('icon'));
+    rows.slice(hi + 1).forEach(r => {
+      const id = String(r[iId] ?? '').trim();
+      if (!id) return;
+      themes[id] = {
+        label: iLbl >= 0 ? String(r[iLbl] ?? id).trim() : id,
+        color: iCol >= 0 ? String(r[iCol] ?? '#888').trim() : '#888',
+        icon:  iIco >= 0 ? String(r[iIco] ?? '🃏').trim() : '🃏',
+      };
+    });
+  }
+
+  // Questions sheet
+  const qName = wb.SheetNames.find(n => /question/i.test(n)) || wb.SheetNames[0];
+  const qRows = XLSX.utils.sheet_to_json(wb.Sheets[qName], { header: 1, defval: '' });
+  // Header row: find row with "Question" or "Theme"
+  let qhi = qRows.findIndex(r => r.some(c => /^question$|^theme$/i.test(String(c).trim())));
+  if (qhi < 0) qhi = 0;
+  const qhdr = qRows[qhi].map(c => String(c).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,''));
+  const qi   = (...keys) => qhdr.findIndex(h => keys.some(k => h === k || h.startsWith(k)));
+
+  const iTheme = qi('theme');
+  const iQ     = qi('question','q');
+  const iA     = qi('optiona','a');
+  const iB     = qi('optionb','b');
+  const iC     = qi('optionc','c');
+  const iD     = qi('optiond','d');
+  const iBonne = qi('bonnereponse','bonnerep','reponse','answer','correct');
+  const iDiff  = qi('difficulte','difficulty','niveau');
+
+  const diffPts = { facile:1,easy:1,'1':1, moyen:2,medium:2,'2':2, difficile:3,hard:3,'3':3 };
+
+  const questions = qRows.slice(qhi + 1).map(r => {
+    const q = String(r[iQ] ?? '').trim();
+    if (!q) return null;
+    const opts = [
+      String(r[iA] ?? '').trim(),
+      String(r[iB] ?? '').trim(),
+      String(r[iC] ?? '').trim(),
+      String(r[iD] ?? '').trim(),
+    ].filter(Boolean);
+    if (!opts.length) return null;
+    const bonneIdx = Math.max(0, Math.min(parseInt(r[iBonne] ?? 0) || 0, opts.length - 1));
+    const diff     = String(r[iDiff] ?? 'facile').toLowerCase().trim();
+    return {
+      theme:    String(r[iTheme] ?? '').trim() || 'general',
+      question: q, options: opts, bonneIdx,
+      difficulte: diff,
+      points: diffPts[diff] ?? 1,
+    };
+  }).filter(Boolean);
+
+  return { title: 'Semaine Sécurité 2026', subtitle: 'Jeu de Cartes QCM', themes, questions, importedAt: new Date().toISOString() };
 }
 
-// ════════════════════════════════════════════
-// CATEGORY COLORS
-// ════════════════════════════════════════════
-function buildCategoryMap() {
-  const cats = [...new Set(gameData.questions.map(q => q.categorie || 'Général'))];
-  cats.forEach((c, i) => { catColorMap[c] = i % 8; });
-}
-function getCatClass(cat) { return 'cat-' + (catColorMap[cat] ?? 0); }
-
-// ════════════════════════════════════════════
-// FILTERS
-// ════════════════════════════════════════════
+// ── FILTERS ─────────────────────────────────
 function buildFilters() {
-  const cats = [...new Set(gameData.questions.map(q => q.categorie || 'Général'))];
-  const container = document.getElementById('cat-filters');
-  container.innerHTML = '';
-
-  const allBtn = document.createElement('button');
-  allBtn.className = 'filter-btn' + (activeCat === 'all' ? ' active' : '');
-  allBtn.textContent = 'Toutes';
-  allBtn.onclick = () => { activeCat = 'all'; renderCards(); setActive(container, allBtn); };
-  container.appendChild(allBtn);
-
-  cats.forEach(cat => {
-    const btn = document.createElement('button');
-    btn.className = 'filter-btn' + (activeCat === cat ? ' active' : '');
-    btn.textContent = cat;
-    btn.onclick = () => { activeCat = cat; renderCards(); setActive(container, btn); };
-    container.appendChild(btn);
+  const c = document.getElementById('filters');
+  c.innerHTML = '';
+  const mk = (label, val) => {
+    const b = document.createElement('button');
+    b.className = 'f-btn' + (activeCat === val ? ' active' : '');
+    b.textContent = label;
+    b.onclick = () => { activeCat = val; renderCards(); c.querySelectorAll('.f-btn').forEach(x => x.classList.remove('active')); b.classList.add('active'); };
+    c.appendChild(b);
+  };
+  mk('Toutes', 'all');
+  const th = gameData.themes || {};
+  const ids = Object.keys(th).length ? Object.keys(th) : [...new Set(gameData.questions.map(q => q.theme))];
+  ids.forEach(id => {
+    const t = th[id];
+    mk(t ? t.icon + ' ' + t.label : id, id);
   });
 }
-function setActive(container, activeBtn) {
-  container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  activeBtn.classList.add('active');
-}
 
-// ════════════════════════════════════════════
-// RENDER CARDS
-// ════════════════════════════════════════════
+// ── CARDS ────────────────────────────────────
 function renderCards() {
   const grid = document.getElementById('card-grid');
   grid.innerHTML = '';
-  const filtered = activeCat === 'all'
-    ? gameData.questions
-    : gameData.questions.filter(q => (q.categorie || 'Général') === activeCat);
+  const L = ['A','B','C','D'];
+  const qs = activeCat === 'all' ? gameData.questions : gameData.questions.filter(q => q.theme === activeCat);
 
-  filtered.forEach((q, idx) => {
-    const realIdx = gameData.questions.indexOf(q);
-    const catClass = getCatClass(q.categorie || 'Général');
-    const isUsed = usedCards.has(realIdx);
-    const diff = diffStars(q.difficulte);
-    const pts  = q.points || 1;
+  qs.forEach(q => {
+    const idx    = gameData.questions.indexOf(q);
+    const th     = gameData.themes?.[q.theme] || { label: q.theme, color: '#888', icon: '🃏' };
+    const isUsed = usedCards.has(idx);
+    const diffStr = ({facile:'●○○ Facile', moyen:'●●○ Moyen', difficile:'●●● Difficile'})[q.difficulte] || q.difficulte;
+    const bg  = hexRgba(th.color, .16);
+    const bs  = `background:${bg};color:${th.color};border-color:${hexRgba(th.color,.3)}`;
 
-    const wrapper = document.createElement('div');
-    wrapper.className = 'card-wrapper' + (isUsed ? ' used' : '');
-    wrapper.dataset.idx = realIdx;
+    // Front options (no reveal)
+    const frontOpts = q.options.map((o,i) => `<li class="opt"><span class="opt-l">${L[i]}</span><span>${o}</span></li>`).join('');
+    // Back options (reveal correct)
+    const backOpts  = q.options.map((o,i) => `<li class="opt ${i===q.bonneIdx?'correct':'wrong'}"><span class="opt-l">${i===q.bonneIdx?'✔':L[i]}</span><span>${o}</span></li>`).join('');
 
-    wrapper.innerHTML = `
+    const wrap = document.createElement('div');
+    wrap.className = 'card-wrap' + (isUsed ? ' used' : '');
+    wrap.dataset.idx = idx;
+    wrap.innerHTML = `
       <div class="card-inner">
         <div class="card-face card-front">
-          <div>
-            <span class="card-cat-badge ${catClass}">${q.categorie || 'Général'}</span>
-            <div class="card-question">${q.question}</div>
-          </div>
+          <span class="theme-badge" style="${bs}">${th.icon} ${th.label}</span>
+          <div class="card-q">${q.question}</div>
+          <ul class="opts">${frontOpts}</ul>
           <div class="card-meta">
-            <span class="card-pts">⭐ ${pts} pt${pts>1?'s':''}</span>
-            <span class="card-diff">${diff}</span>
+            <span class="card-pts">⭐ ${q.points} pt${q.points>1?'s':''}</span>
+            <span class="card-diff">${diffStr}</span>
           </div>
         </div>
         <div class="card-face card-back">
-          <div>
-            <span class="card-cat-badge ${catClass}">${q.categorie || 'Général'}</span>
-            <div class="card-answer">✅ ${q.reponse || '—'}</div>
-            ${q.indice ? `<div class="card-hint">💡 ${q.indice}</div>` : ''}
-          </div>
+          <span class="theme-badge" style="${bs}">${th.icon} ${th.label}</span>
+          <div class="card-q">${q.question}</div>
+          <div class="ans-label">Bonne réponse :</div>
+          <ul class="opts">${backOpts}</ul>
           <div class="card-actions">
-            <button class="btn-score btn-ok" onclick="awardScore(event, ${realIdx}, ${pts})">✔ Bonne réponse</button>
-            <button class="btn-score btn-ko" onclick="markUsed(event, ${realIdx})">✘ Mauvaise</button>
+            <button class="btn-s btn-ok" onclick="awardScore(event,${idx},${q.points})">✔ Bonne réponse</button>
+            <button class="btn-s btn-ko" onclick="markUsed(event,${idx})">✘ Mauvaise</button>
           </div>
         </div>
       </div>`;
 
-    wrapper.addEventListener('click', e => {
-      if (e.target.classList.contains('btn-score')) return;
+    wrap.addEventListener('click', e => {
+      if (e.target.closest('.btn-s')) return;
       if (isUsed) return;
-      wrapper.classList.toggle('flipped');
+      wrap.classList.toggle('flipped');
     });
-
-    grid.appendChild(wrapper);
+    grid.appendChild(wrap);
   });
 }
 
-function diffStars(d) {
-  if (!d) return '●○○';
-  const v = String(d).toLowerCase();
-  if (v === 'facile' || v === '1' || v === 'easy') return '●○○';
-  if (v === 'moyen'  || v === '2' || v === 'medium') return '●●○';
-  if (v === 'difficile' || v === '3' || v === 'hard') return '●●●';
-  return '●○○';
+function hexRgba(hex, a) {
+  const h = (hex||'#888888').replace('#','');
+  const r = parseInt(h.substring(0,2),16)||136;
+  const g = parseInt(h.substring(2,4),16)||136;
+  const b = parseInt(h.substring(4,6),16)||136;
+  return `rgba(${r},${g},${b},${a})`;
 }
-
 function updateProgress() {
   const total = gameData?.questions?.length || 1;
-  const done  = usedCards.size;
-  document.getElementById('progress-fill').style.width = (done / total * 100) + '%';
+  document.getElementById('prog').style.width = (usedCards.size / total * 100) + '%';
 }
 
-// ════════════════════════════════════════════
-// SCORE
-// ════════════════════════════════════════════
-function awardScore(e, cardIdx, pts) {
+// ── SCORE ────────────────────────────────────
+function awardScore(e, idx, pts) {
   e.stopPropagation();
-  const players = Object.keys(scores);
-  if (players.length === 0) {
-    alert('Ajoutez d\'abord une équipe via "+ Équipe"');
-    return;
-  }
-  pendingCardPts = pts;
-  pendingCardIdx = cardIdx;
-  openScoreModal(pts, cardIdx);
-}
-
-let pendingCardIdx = -1;
-
-function openScoreModal(pts, cardIdx) {
-  const list = document.getElementById('score-player-list');
+  if (!Object.keys(scores).length) { alert('Ajoutez d\'abord une équipe via "+ Équipe"'); return; }
+  const list = document.getElementById('score-list');
   list.innerHTML = '';
-  Object.entries(scores).forEach(([name, score]) => {
+  Object.entries(scores).forEach(([name, sc]) => {
     const btn = document.createElement('button');
-    btn.style.cssText = 'display:block;width:100%;text-align:left;padding:10px 14px;margin-bottom:8px;border-radius:8px;border:1px solid var(--c-border);background:var(--c-card);color:var(--c-text);cursor:pointer;font-size:.9rem;transition:all .2s';
-    btn.innerHTML = `<strong>${name}</strong> <span style="color:var(--c-accent)">${score} pts</span> → +${pts}`;
-    btn.onmouseover = () => btn.style.borderColor = 'var(--c-success)';
-    btn.onmouseout  = () => btn.style.borderColor = 'var(--c-border)';
-    btn.onclick = () => {
-      scores[name] = (scores[name] || 0) + pts;
-      saveScores();
-      markUsedCard(cardIdx);
-      closeScoreModal();
-    };
+    btn.className = 'sp-btn';
+    btn.innerHTML = `<strong>${name}</strong> <span style="color:var(--c-accent)">${sc} pts</span> <span style="color:var(--c-success)">→ +${pts}</span>`;
+    btn.onclick = () => { scores[name] = (scores[name]||0)+pts; saveScores(); markUsedCard(idx); closeScoreModal(); };
     list.appendChild(btn);
   });
   document.getElementById('modal-score').classList.add('open');
 }
-function closeScoreModal() {
-  document.getElementById('modal-score').classList.remove('open');
+function closeScoreModal() { document.getElementById('modal-score').classList.remove('open'); }
+function markUsed(e, idx)  { e.stopPropagation(); markUsedCard(idx); }
+function markUsedCard(idx) {
+  usedCards.add(idx); saveUsed();
+  const w = document.querySelector(`.card-wrap[data-idx="${idx}"]`);
+  if (w) { w.classList.remove('flipped'); w.classList.add('used'); }
+  updateProgress(); renderScoreboard();
 }
 
-function markUsed(e, cardIdx) {
-  e.stopPropagation();
-  markUsedCard(cardIdx);
-}
-function markUsedCard(cardIdx) {
-  usedCards.add(cardIdx);
-  saveUsedCards();
-  const wrapper = document.querySelector(`.card-wrapper[data-idx="${cardIdx}"]`);
-  if (wrapper) { wrapper.classList.remove('flipped'); wrapper.classList.add('used'); }
-  updateProgress();
-  renderScoreboard();
-}
-
-// ════════════════════════════════════════════
-// PLAYERS
-// ════════════════════════════════════════════
+// ── PLAYERS ──────────────────────────────────
 function addPlayer() {
   const name = prompt('Nom de l\'équipe :');
-  if (!name || !name.trim()) return;
+  if (!name?.trim()) return;
   scores[name.trim()] = scores[name.trim()] || 0;
-  saveScores();
-  renderScoreboard();
-  renderPlayerChips();
+  saveScores(); renderScoreboard();
 }
-
-function renderPlayerChips() {
-  const list = document.getElementById('players-list');
-  list.innerHTML = '';
-  Object.entries(scores).forEach(([name, pts]) => {
-    const chip = document.createElement('div');
-    chip.className = 'player-chip';
-    chip.innerHTML = `<span>${name}</span><span class="player-score-chip">${pts}</span>`;
-    list.appendChild(chip);
-  });
-  document.getElementById('header-score').style.display = Object.keys(scores).length ? 'block' : 'none';
-  const total = Object.values(scores).reduce((a,b)=>a+b,0);
-  document.getElementById('total-score').textContent = total;
-}
-
 function renderScoreboard() {
-  const sb = document.getElementById('scoreboard');
-  const rows = document.getElementById('scoreboard-rows');
-  const players = Object.entries(scores);
-  if (players.length === 0) { sb.style.display = 'none'; return; }
-  sb.style.display = 'block';
-  const sorted = [...players].sort((a,b) => b[1]-a[1]);
-  rows.innerHTML = sorted.map(([n,p]) =>
-    `<div class="score-row"><span>${n}</span><span class="score-pts">${p}</span></div>`
-  ).join('');
-  renderPlayerChips();
+  const sb    = document.getElementById('scoreboard');
+  const rows  = document.getElementById('sb-rows');
+  const chips = document.getElementById('p-chips');
+  const entries = Object.entries(scores);
+  if (!entries.length) { sb.style.display='none'; chips.innerHTML=''; document.getElementById('score-pill').style.display='none'; return; }
+  sb.style.display = 'block'; document.getElementById('score-pill').style.display = 'block';
+  const sorted = [...entries].sort((a,b)=>b[1]-a[1]);
+  rows.innerHTML  = sorted.map(([n,p])=>`<div class="sb-row"><span>${n}</span><span class="sb-pts">${p}</span></div>`).join('');
+  chips.innerHTML = entries.map(([n,p])=>`<div class="p-chip"><span>${n}</span><span class="p-pts">${p}</span></div>`).join('');
+  document.getElementById('total-score').textContent = entries.reduce((a,[,v])=>a+v,0);
 }
 
-// ════════════════════════════════════════════
-// STORAGE
-// ════════════════════════════════════════════
-function saveScores()    { localStorage.setItem(LS_SCORES_KEY, JSON.stringify(scores)); }
-function saveUsedCards() { localStorage.setItem(LS_USED_KEY, JSON.stringify([...usedCards])); }
-function loadScores()    { try { scores = JSON.parse(localStorage.getItem(LS_SCORES_KEY)||'{}'); } catch(e) { scores={}; } }
-function loadUsedCards() { try { usedCards = new Set(JSON.parse(localStorage.getItem(LS_USED_KEY)||'[]')); } catch(e) { usedCards=new Set(); } }
+// ── STORAGE ──────────────────────────────────
+function saveScores() { localStorage.setItem(LS_SCORES, JSON.stringify(scores)); }
+function saveUsed()   { localStorage.setItem(LS_USED,   JSON.stringify([...usedCards])); }
+function loadScores() { try { scores    = JSON.parse(localStorage.getItem(LS_SCORES)||'{}'); } catch(e){scores={};} }
+function loadUsed()   { try { usedCards = new Set(JSON.parse(localStorage.getItem(LS_USED)||'[]')); } catch(e){usedCards=new Set();} }
 
-// ════════════════════════════════════════════
-// ADMIN — LOCK / PASSWORD
-// ════════════════════════════════════════════
-function openLockModal() {
-  document.getElementById('pw-error').style.display = 'none';
-  document.getElementById('pw-input').value = '';
-  document.getElementById('modal-pw').classList.add('open');
-  setTimeout(() => document.getElementById('pw-input').focus(), 100);
-}
-function closeLockModal() {
-  document.getElementById('modal-pw').classList.remove('open');
-}
-function checkPassword() {
-  const pw = document.getElementById('pw-input').value;
-  if (pw === ADMIN_PASSWORD) {
-    closeLockModal();
-    showAdmin();
-  } else {
-    document.getElementById('pw-error').style.display = 'block';
-    document.getElementById('pw-input').value = '';
-    document.getElementById('pw-input').focus();
-  }
+// ── ADMIN PASSWORD ───────────────────────────
+function openPwModal()  { document.getElementById('pw-err').style.display='none'; document.getElementById('pw-in').value=''; document.getElementById('modal-pw').classList.add('open'); setTimeout(()=>document.getElementById('pw-in').focus(),80); }
+function closePwModal() { document.getElementById('modal-pw').classList.remove('open'); }
+function checkPw() {
+  if (document.getElementById('pw-in').value === ADMIN_PW) { closePwModal(); showAdmin(); }
+  else { document.getElementById('pw-err').style.display='block'; document.getElementById('pw-in').value=''; document.getElementById('pw-in').focus(); }
 }
 
-// ════════════════════════════════════════════
-// EXCEL IMPORT
-// ════════════════════════════════════════════
-function handleDrag(e, on) {
-  e.preventDefault();
-  document.getElementById('drop-zone').classList.toggle('drag', on);
-}
-function handleDrop(e) {
-  e.preventDefault();
-  handleDrag(e, false);
-  const file = e.dataTransfer.files[0];
-  if (file) processFile(file);
-}
-function handleFileInput(e) {
-  const file = e.target.files[0];
-  if (file) processFile(file);
-}
+// ── FILE UPLOAD ──────────────────────────────
+function onDrag(e,on) { e.preventDefault(); document.getElementById('drop-zone').classList.toggle('drag',on); }
+function onDrop(e)    { e.preventDefault(); onDrag(e,false); if(e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); }
+function onFileInput(e){ if(e.target.files[0]) processFile(e.target.files[0]); }
 
 function processFile(file) {
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = e => {
     try {
       const wb   = XLSX.read(e.target.result, { type: 'binary' });
       const data = parseWorkbook(wb);
-      if (!data || data.questions.length === 0) throw new Error('Aucune question trouvée.');
+      if (!data.questions.length) throw new Error('Aucune question trouvée.');
       gameData = data;
-      localStorage.setItem(LS_CONFIG_KEY, JSON.stringify(data));
-      showImportStatus('ok', `✅ ${data.questions.length} questions chargées avec succès.`);
-      showPreview(data.questions);
-      document.getElementById('btn-export-html').style.display = 'block';
-      refreshAdminInfo();
-    } catch(err) {
-      showImportStatus('err', '❌ Erreur : ' + err.message);
-    }
+      localStorage.setItem(LS_CONFIG, JSON.stringify(data));
+      const nbThemes = Object.keys(data.themes||{}).length;
+      setSt('import-st','ok',`✅ ${data.questions.length} questions chargées — ${nbThemes} thème(s) détecté(s).`);
+      showPreview(data);
+      document.getElementById('btn-export').style.display = 'block';
+      refreshCfgInfo();
+    } catch(err) { setSt('import-st','err','❌ '+err.message); }
   };
   reader.readAsBinaryString(file);
 }
 
-function parseWorkbook(wb) {
-  // Chercher la feuille "Questions" ou utiliser la 1ère
-  const sheetName = wb.SheetNames.find(n => n.toLowerCase().includes('question')) || wb.SheetNames[0];
-  const ws = wb.Sheets[sheetName];
-  const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
-
-  // Config sheet (optionnelle)
-  let title = 'Semaine Sécurité 2026';
-  let subtitle = 'Jeu de Cartes Interactif';
-  const configSheet = wb.SheetNames.find(n => n.toLowerCase() === 'config');
-  if (configSheet) {
-    const cfgRows = XLSX.utils.sheet_to_json(wb.Sheets[configSheet], { header: 1, defval: '' });
-    cfgRows.forEach(row => {
-      const k = String(row[0]).toLowerCase().trim();
-      const v = String(row[1]).trim();
-      if (k === 'titre' || k === 'title') title = v;
-      if (k === 'sous-titre' || k === 'subtitle') subtitle = v;
-    });
-  }
-
-  // Normaliser les colonnes
-  const normalize = s => String(s).toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-    .replace(/[^a-z0-9]/g,'');
-
-  const questions = rows
-    .map(row => {
-      const get = (...keys) => {
-        for (const k of keys) {
-          const val = Object.entries(row).find(([rk]) => normalize(rk) === normalize(k));
-          if (val && String(val[1]).trim()) return String(val[1]).trim();
-        }
-        return '';
-      };
-      return {
-        question:   get('question','q','Question'),
-        reponse:    get('reponse','réponse','response','reponse','answer','rep','r'),
-        categorie:  get('categorie','catégorie','category','cat','theme','thème') || 'Général',
-        points:     parseInt(get('points','pts','score','point')) || 1,
-        difficulte: get('difficulte','difficulté','difficulty','niveau','level'),
-        indice:     get('indice','hint','aide','clé'),
-      };
-    })
-    .filter(q => q.question);
-
-  return { title, subtitle, questions, importedAt: new Date().toISOString() };
+function showPreview(data) {
+  const box = document.getElementById('preview-box');
+  const tbl = document.getElementById('preview-tbl');
+  const L   = ['A','B','C','D'];
+  const sample = data.questions.slice(0,5);
+  tbl.innerHTML = `
+    <tr><th>Thème</th><th>Question</th><th>Options</th><th>Bonne réponse</th><th>Pts</th></tr>
+    ${sample.map(q => {
+      const th = data.themes?.[q.theme];
+      const lbl = th ? th.icon+' '+th.label : q.theme;
+      const bon = `${L[q.bonneIdx]}: ${(q.options[q.bonneIdx]||'').slice(0,30)}`;
+      return `<tr>
+        <td>${lbl}</td>
+        <td>${q.question.slice(0,45)}${q.question.length>45?'…':''}</td>
+        <td style="font-size:.72rem">${q.options.map((o,i)=>L[i]+': '+o.slice(0,18)).join('<br>')}</td>
+        <td style="color:var(--c-success)">${bon}</td>
+        <td>${q.points}</td>
+      </tr>`;
+    }).join('')}
+    ${data.questions.length>5?`<tr><td colspan="5" style="color:var(--c-muted);text-align:center">… et ${data.questions.length-5} autres questions</td></tr>`:''}`;
+  box.style.display = 'block';
 }
 
-function showImportStatus(type, msg) {
-  const el = document.getElementById('import-status');
-  el.className = 'status-box status-' + (type === 'ok' ? 'ok' : 'err');
-  el.textContent = msg;
-  el.style.display = 'block';
-}
-
-function showPreview(questions) {
-  const preview = document.getElementById('config-preview');
-  const tableDiv = document.getElementById('preview-table');
-  const sample = questions.slice(0, 5);
-  tableDiv.innerHTML = `<table>
-    <tr><th>Catégorie</th><th>Question</th><th>Réponse</th><th>Pts</th><th>Diff.</th></tr>
-    ${sample.map(q => `<tr>
-      <td>${q.categorie}</td>
-      <td>${q.question.slice(0,60)}${q.question.length>60?'…':''}</td>
-      <td>${q.reponse.slice(0,40)}${q.reponse.length>40?'…':''}</td>
-      <td>${q.points}</td>
-      <td>${q.difficulte||'—'}</td>
-    </tr>`).join('')}
-    ${questions.length > 5 ? `<tr><td colspan="5" style="color:var(--c-muted);text-align:center">… et ${questions.length-5} autres</td></tr>` : ''}
-  </table>`;
-  preview.style.display = 'block';
-}
-
-// ════════════════════════════════════════════
-// GITHUB URL
-// ════════════════════════════════════════════
-function saveGithubURL() {
-  const url = document.getElementById('github-url').value.trim();
-  if (!url) { alert('Entrez une URL valide.'); return; }
-  localStorage.setItem(LS_URL_KEY, url);
-  refreshAdminInfo();
-  alert('✅ URL sauvegardée. Elle sera utilisée au prochain chargement.');
-}
-function clearGithubURL() {
-  if (!confirm('Supprimer l\'URL GitHub ?')) return;
-  localStorage.removeItem(LS_URL_KEY);
-  document.getElementById('github-url').value = '';
-  refreshAdminInfo();
-}
-async function fetchFromURL() {
-  const url = document.getElementById('github-url').value.trim();
+// ── GITHUB URL ───────────────────────────────
+async function testGhUrl() {
+  const url = document.getElementById('gh-url').value.trim();
   if (!url) return;
-  try {
-    await fetchExcelFromUrl(url, false);
-    showUrlStatus('ok', '✅ Fichier chargé avec succès depuis l\'URL.');
-  } catch(e) {
-    showUrlStatus('err', '❌ Erreur : ' + e.message);
-  }
+  try { await fetchFromUrl(url, false); setSt('url-st','ok','✅ Chargé depuis l\'URL.'); }
+  catch(e) { setSt('url-st','err','❌ '+e.message); }
 }
-async function fetchExcelFromUrl(url, silent) {
+function saveGhUrl() {
+  const url = document.getElementById('gh-url').value.trim();
+  if (!url) { alert('Entrez une URL.'); return; }
+  localStorage.setItem(LS_URL, url); refreshCfgInfo();
+  alert('✅ URL sauvegardée — active au prochain chargement.');
+}
+function clearGhUrl() {
+  if (!confirm('Supprimer l\'URL GitHub ?')) return;
+  localStorage.removeItem(LS_URL); document.getElementById('gh-url').value=''; refreshCfgInfo();
+}
+async function fetchFromUrl(url, silent) {
   const resp = await fetch(url);
   if (!resp.ok) throw new Error('HTTP ' + resp.status);
-  const buf  = await resp.arrayBuffer();
-  const wb   = XLSX.read(buf, { type: 'array' });
+  const wb   = XLSX.read(await resp.arrayBuffer(), { type: 'array' });
   const data = parseWorkbook(wb);
-  if (!data || data.questions.length === 0) throw new Error('Aucune question dans le fichier.');
-  gameData = data;
-  localStorage.setItem(LS_CONFIG_KEY, JSON.stringify(data));
-  if (!silent) { showPreview(data.questions); refreshAdminInfo(); }
+  if (!data.questions.length) throw new Error('Aucune question.');
+  gameData = data; localStorage.setItem(LS_CONFIG, JSON.stringify(data));
+  if (!silent) { showPreview(data); refreshCfgInfo(); }
   startGame();
 }
-function showUrlStatus(type, msg) {
-  const el = document.getElementById('url-status');
-  el.className = 'status-box status-' + (type === 'ok' ? 'ok' : 'err');
-  el.textContent = msg;
-  el.style.display = 'block';
-}
 
-// ════════════════════════════════════════════
-// ADMIN INFO REFRESH
-// ════════════════════════════════════════════
-function refreshAdminInfo() {
-  const raw = localStorage.getItem(LS_CONFIG_KEY);
-  const info = document.getElementById('current-config-info');
+// ── ADMIN HELPERS ─────────────────────────────
+function refreshCfgInfo() {
+  const raw = localStorage.getItem(LS_CONFIG);
+  const el  = document.getElementById('cfg-info');
+  const savedUrl = localStorage.getItem(LS_URL);
+  if (savedUrl) document.getElementById('gh-url').value = savedUrl;
   if (raw) {
     try {
       const d = JSON.parse(raw);
-      info.innerHTML = `<span style="color:var(--c-success)">✅ Configuration active :</span>
-        <strong>${d.questions.length} questions</strong> chargées
-        ${d.importedAt ? '(importé le ' + new Date(d.importedAt).toLocaleDateString('fr-FR') + ')' : ''}`;
-    } catch(e) { info.textContent = 'Configuration invalide.'; }
-  } else {
-    info.textContent = 'Aucune configuration chargée.';
-  }
-  const savedUrl = localStorage.getItem(LS_URL_KEY);
-  document.getElementById('saved-url-display').textContent = savedUrl || '—';
-  if (savedUrl) document.getElementById('github-url').value = savedUrl;
-  document.getElementById('btn-export-html').style.display = gameData ? 'block' : 'none';
+      el.innerHTML = `<span style="color:var(--c-success)">✅</span> <strong>${d.questions.length} questions</strong> — ${Object.keys(d.themes||{}).length} thèmes${d.importedAt?' ('+new Date(d.importedAt).toLocaleDateString('fr-FR')+')':''}`;
+    } catch(e) { el.textContent = 'Config invalide.'; }
+  } else { el.textContent = 'Aucune configuration chargée.'; }
+  document.getElementById('btn-export').style.display = gameData ? 'block' : 'none';
 }
-
-// ════════════════════════════════════════════
-// RESET / CLEAR
-// ════════════════════════════════════════════
 function resetGame() {
-  if (!confirm('Réinitialiser tous les scores et cartes retournées ?')) return;
-  scores = {};
-  usedCards = new Set();
-  localStorage.removeItem(LS_SCORES_KEY);
-  localStorage.removeItem(LS_USED_KEY);
-  alert('✅ Jeu réinitialisé.');
+  if (!confirm('Réinitialiser les scores et les cartes jouées ?')) return;
+  scores={}; usedCards=new Set();
+  localStorage.removeItem(LS_SCORES); localStorage.removeItem(LS_USED);
+  alert('✅ Réinitialisé.');
 }
 function clearConfig() {
-  if (!confirm('Supprimer la configuration ? Le jeu affichera l\'écran d\'attente.')) return;
-  localStorage.removeItem(LS_CONFIG_KEY);
-  gameData = null;
-  document.getElementById('import-status').style.display = 'none';
-  document.getElementById('config-preview').style.display = 'none';
-  document.getElementById('btn-export-html').style.display = 'none';
-  refreshAdminInfo();
+  if (!confirm('Supprimer la configuration ?')) return;
+  localStorage.removeItem(LS_CONFIG); gameData=null;
+  document.getElementById('import-st').style.display='none';
+  document.getElementById('preview-box').style.display='none';
+  document.getElementById('btn-export').style.display='none';
+  refreshCfgInfo();
+}
+function setSt(id,type,msg) {
+  const el = document.getElementById(id);
+  el.className = 'status st-'+(type==='ok'?'ok':'err');
+  el.textContent = msg; el.style.display = 'block';
 }
 
-// ════════════════════════════════════════════
-// EXPORT HTML AUTONOME
-// ════════════════════════════════════════════
+// ── EXPORT HTML AUTONOME ──────────────────────
 function exportHTML() {
   if (!gameData) return;
-  const configJson = JSON.stringify(gameData);
-  const currentHtml = document.documentElement.outerHTML;
-
-  // Injecter le config JSON dans un script en tête
-  const injectedScript = `<script id="embedded-config">
-    window.__EMBEDDED_CONFIG__ = ${configJson};
-  <\/script>`;
-
-  const finalHtml = currentHtml.replace('</head>', injectedScript + '\n</head>');
-  const blob = new Blob([finalHtml], { type: 'text/html;charset=utf-8' });
+  const sc  = `<script id="ec">window.__EC__=${JSON.stringify(gameData)};<\/script>`;
+  const html = document.documentElement.outerHTML.replace('</head>', sc+'\n</head>');
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'semaine_securite_2026_v7_export.html';
-  a.click();
+  a.href = URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'}));
+  a.download = 'securite_2026_export.html'; a.click();
 }
-
-// Charger config embarquée si présente
-if (window.__EMBEDDED_CONFIG__) {
-  localStorage.setItem(LS_CONFIG_KEY, JSON.stringify(window.__EMBEDDED_CONFIG__));
-}
-
+if (window.__EC__) localStorage.setItem(LS_CONFIG, JSON.stringify(window.__EC__));
 </script>
 </body>
 </html>
