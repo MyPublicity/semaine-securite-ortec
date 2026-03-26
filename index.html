@@ -1067,7 +1067,7 @@ function saveTrackingUrl(){
 }
 
 function clearTrackingUrl(){
-  if(!confirm('Supprimer l'URL de tracking ?')) return;
+  if(!confirm('Supprimer l\'URL de tracking ?')) return;
   localStorage.removeItem(LS_TRACK_URL);
   document.getElementById('tracking-url').value = '';
   showSt('tracking-ok','🗑 URL supprimée.'); hideSt('tracking-err');
@@ -1075,15 +1075,15 @@ function clearTrackingUrl(){
 
 function testTrackingUrl(){
   const url = document.getElementById('tracking-url').value.trim();
-  if(!url){ showSt('tracking-err','❌ Entrez une URL d'abord.'); hideSt('tracking-ok'); return; }
-  showSt('tracking-ok','⏳ Envoi d'un événement test en cours…'); hideSt('tracking-err');
+  if(!url){ showSt('tracking-err','❌ Entrez une URL d\'abord.'); hideSt('tracking-ok'); return; }
+  showSt('tracking-ok','⏳ Envoi d\'un événement test en cours…'); hideSt('tracking-err');
   const testEntry = { equipe:'🔧 TEST ADMIN', evenement:'Test',
     date: new Date().toLocaleDateString('fr-FR'),
     heure: new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),
     terminal:'Admin Panel', ts: new Date().toISOString() };
   fetch(url, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(testEntry) })
     .then(() => {
-      showSt('tracking-ok','✅ Requête envoyée ! Vérifiez votre Google Sheet dans 10 secondes. Si rien n'apparaît → vérifiez que le déploiement Apps Script est réglé sur "Tout le monde".');
+      showSt('tracking-ok','✅ Requête envoyée ! Vérifiez votre Google Sheet dans 10 secondes. Si rien n\'apparaît → vérifiez que le déploiement Apps Script est réglé sur "Tout le monde".');
       const log = JSON.parse(localStorage.getItem(LS_TRACK_LOG)||'[]');
       log.unshift(testEntry); localStorage.setItem(LS_TRACK_LOG, JSON.stringify(log));
       renderTrackLog();
