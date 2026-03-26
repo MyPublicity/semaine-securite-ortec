@@ -533,7 +533,6 @@ const EMBEDDED_DATA = (function(){
     confine:       { label:'Espaces Confinés',        color:'#27AE60', icon:'⚠️' },
     hauteur:       { label:'Travail en Hauteur',      color:'#2980B9', icon:'📐' },
     electrique:    { label:'Sécurité Électrique',     color:'#8E44AD', icon:'⚡' },
-    'david&baloo': { label:'David & Baloo',           color:'#2980B9', icon:'🐻' }
   };
   const q=(t,q,o,a,d)=>({theme:t,question:q,options:o,bonneIdx:a,difficulte:d,points:d==='facile'?1:d==='moyen'?2:3});
   return { title:'Semaine Sécurité 2026', subtitle:'Ortec Group — Jeu de cartes interactif', themes, importedAt:new Date().toISOString(), isEmbedded:true,
@@ -603,7 +602,6 @@ const EMBEDDED_DATA = (function(){
       q('electrique',"Outils électrique portatif : vérification avant usage ?",["Rien si récent","Cordon prise isolement état général","Juste la prise","La puissance"],1,'moyen'),
       q('electrique',"Que faire si coupure secteur inattendue pendant travaux ?",["Continuer travailler","Considérer qu'alimentation peut revenir consigner de nouveau","Enlever protections","Appeler le client"],1,'moyen'),
       q('electrique',"Zone 1 habilitation électrique = ?",["Zone libre accès","Zone d'approche zone voisinage simple","Zone travaux électriques","Zone interdite tous"],1,'difficile'),
-      q('david&baloo',"D'après toi qui est le plus malin ?",["David","Baloo","Aucun des deux","Sa mère en short"],1,'difficile'),
     ]
   };
 })();
