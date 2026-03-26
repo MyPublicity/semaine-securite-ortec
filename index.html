@@ -11,7 +11,7 @@
 body{font-family:system-ui,'Segoe UI',sans-serif;background:#f0f4fb;min-height:100vh;color:#1a1a2e}
 
 /* ── HEADER ───────────────────────────────────────────── */
-header{background:#0d1b3e;padding:13px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(13,27,62,.35)}
+header{background:#0d1b3e;padding:13px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;box-shadow:0 4px 20px rgba(13,27,62,.35)}
 .h-left{display:flex;align-items:center;gap:13px}
 .h-badge{width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.13);display:grid;place-items:center;font-size:21px;flex-shrink:0}
 .h-title{color:#fff;font-size:16px;font-weight:700;line-height:1.2}
@@ -876,7 +876,7 @@ function confirmReset(){
 // ════════════════════════════════════════════════════════
 // ADMIN — MOT DE PASSE
 // ════════════════════════════════════════════════════════
-function openPwModal(){ document.getElementById('pw-err').style.display='none'; document.getElementById('pw-in').value=''; document.getElementById('modal-pw').classList.add('open'); setTimeout(()=>document.getElementById('pw-in').focus(),80); }
+function openPwModal(){ document.getElementById('modal-login').classList.remove('open'); document.getElementById('pw-err').style.display='none'; document.getElementById('pw-in').value=''; document.getElementById('modal-pw').classList.add('open'); setTimeout(()=>document.getElementById('pw-in').focus(),80); }
 function closePwModal(){ document.getElementById('modal-pw').classList.remove('open'); }
 function checkPw(){ if(document.getElementById('pw-in').value===ADMIN_PW){ closePwModal(); showAdmin(); } else { document.getElementById('pw-err').style.display='block'; document.getElementById('pw-in').value=''; document.getElementById('pw-in').focus(); } }
 
